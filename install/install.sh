@@ -8,9 +8,9 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT="$(basename "${BASH_SOURCE[0]}")"
 
 
-# mainnet testnet devnet
+# one of: mainnet testnet devnet
 network=${1:-mainnet}
-# default archive
+# one of: default archive
 feature=${2:-default}
 
 
@@ -34,6 +34,6 @@ mkdir -p $log_dir
     curl --proto '=https' --tlsv1.2 -sSfL https://github.com/dusk-network/node-installer/releases/latest/download/node-installer.sh > $installer
     #curl --proto '=https' --tlsv1.2 -sSfL https://github.com/dusk-network/node-installer/releases/download/v0.5.1/node-installer.sh > $installer
 
-    FEATURE=$feature bash -x $installer $network
+    FEATURE=$feature sudo bash -x $installer $network
 
 } 2>&1 | tee $log_file_raw | grep --line-buffered -v -e '^+\+ ' | tee $log_file

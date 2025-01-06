@@ -25,7 +25,8 @@ else
 fi
 
 cmd="sudo find /etc /opt /usr/bin ~ \( -iname '*dusk*' -o -iname '*rusk*' \) | $filter"
-eval $cmd
+# TODO: fix this for $? == 2
+eval $cmd || ( (( $? == 1  )) && echo no matching files && false) || exit 0
 
 rmcmd="# $cmd | sort -r | xargs sudo rm -r ; sudo systemctl daemon-reload"
 
