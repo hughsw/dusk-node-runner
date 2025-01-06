@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Fail loudly
+set -euo pipefail
+trap 'rc=$?;set +ex;if [[ $rc -ne 0 ]];then trap - ERR EXIT;echo 1>&2;echo "*** fail *** : code $rc : $DIR/$SCRIPT $ARGS" 1>&2;echo 1>&2;exit $rc;fi' ERR EXIT
+ARGS="$*"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT="$(basename "${BASH_SOURCE[0]}")"
+
+
+timestamp=$(date '+%Y-%m-%d-%H%M-%S')
+log_dir=${DIR}/run.logs
+log_file=${log_dir}/run_${timestamp}.log
+
+
+mkdir -p $log_dir
+
+{
+    set -x
+
+    podman run \
+           --cap-add=CAP_SYS_ADMIN \
+           -it \
+           --rm \
+           --name dusk \
+           --env RUSK_PUBLIC_ADDRESS=51.81.210.195:9000 \
+           --network=host \
+           -p 9000:9000/udp \
+           -p 8080:8080/tcp \
+           -v $(pwd)/dusk_state/opt_dusk:/opt/dusk \
+           -v $(pwd)/dusk_state/root_.dusk:/root/.dusk \
+           -v $(pwd)/dusk_state/rusk.log:/var/log/rusk.log \
+           -v $(pwd)/dusk_state/rusk_recovery.log:/var/log/rusk_recovery.log \
+           dusk
+
+} 2>&1 | tee $log_file

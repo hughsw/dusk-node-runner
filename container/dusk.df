@@ -1,0 +1,65 @@
+FROM docker.io/ubuntu:24.04
+
+# see also:
+#  -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef
+#  --allow-downgrades --allow-remove-essential --allow-change-held-packages
+#apt-get --allow-releaseinfo-change update
+#apt-get dist-upgrade -y -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --allow-downgrades --allow-remove-essential --allow-change-held-packages
+
+COPY ./force-rebuild-nonce /tmp/
+
+RUN set -x \
+  && dpkg-reconfigure debconf --frontend=noninteractive \
+  && export DEBIAN_FRONTEND=noninteractive \
+  && apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y \
+       init \
+       systemd \
+  && systemctl mask systemd-timesyncd.service systemd-resolved.service \
+  && true
+
+# Start the systemd Init service by default
+CMD ["/sbin/init"]
+
+RUN set -x \
+  && export DEBIAN_FRONTEND=noninteractive \
+  && apt-get install -y \
+       curl \
+       dnsutils \
+       iproute2 \
+       jq \
+       less \
+       logrotate \
+       net-tools \
+       sudo \
+       ufw \
+       unzip \
+  && systemctl mask systemd-timesyncd.service systemd-resolved.service \
+  && true
+
+# TODO: use duskadmin as per https://github.com/dusk-network/node-installer
+WORKDIR /root
+COPY ./node-installer.sh /root/
+
+RUN set -x \
+  && bash -x node-installer.sh \
+  && true
+
+# TODO: evaluate for the best way to initialize the (optional?) mounted storage...
+RUN set -x \
+  && mv /opt/dusk /opt/dusk.install \
+  && mv /root/.dusk  /root/.dusk.install \
+  && find / -xdev \( -iname '*dusk*' -o -iname '*rusk*' \) \
+  && true
+
+#ENV RUSK_PUBLIC_ADDRESS
+
+COPY ./initialize-dusk-state.service /etc/systemd/system/
+COPY ./initialize-dusk-state.sh /opt/dusk.install/sbin/
+
+RUN set -x \
+  && systemd-analyze verify --recursive-errors=yes /etc/systemd/system/initialize-dusk-state.service \
+  && bash -n /opt/dusk.install/sbin/initialize-dusk-state.sh \
+  && systemctl enable initialize-dusk-state.service \
+  && true

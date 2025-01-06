@@ -1,0 +1,17 @@
+[Unit]
+Description=Initialize state for Rusk and Dusk Wallet
+Requires=local-fs.target
+After=local-fs.target
+Before=rusk.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+PassEnvironment=RUSK_PUBLIC_ADDRESS
+
+ExecStart= /opt/dusk.install/sbin/initialize-dusk-state.sh
+
+[Install]
+RequiredBy=rusk.service
+WantedBy=multi-user.target

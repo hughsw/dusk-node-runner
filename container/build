@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Fail loudly
+set -euo pipefail
+trap 'rc=$?;set +ex;if [[ $rc -ne 0 ]];then trap - ERR EXIT;echo 1>&2;echo "*** fail *** : code $rc : $DIR/$SCRIPT $ARGS" 1>&2;echo 1>&2;exit $rc;fi' ERR EXIT
+ARGS="$*"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT="$(basename "${BASH_SOURCE[0]}")"
+
+
+timestamp=$(date '+%Y-%m-%d-%H%M-%S')
+log_dir=${DIR}/build.logs
+log_file=${log_dir}/build_${timestamp}.log
+
+cd $DIR
+
+touch force-rebuild-nonce
+installer=node-installer.sh
+touch $installer
+rm $installer
+
+mkdir -p $log_dir
+
+{
+    set -x
+
+    curl --proto '=https' --tlsv1.2 -sSfL -o $installer https://github.com/dusk-network/node-installer/releases/latest/download/node-installer.sh
+
+    podman build -f dusk.df -t dusk .
+
+    rm $installer
+
+} 2>&1 | tee $log_file
