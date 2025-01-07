@@ -19,6 +19,8 @@ RUN set -x \
   && systemctl mask systemd-timesyncd.service systemd-resolved.service \
   && true
 
+#COPY autologin.conf /etc/systemd/system/console-getty.service.d/
+
 # Start the systemd Init service by default
 CMD ["/sbin/init"]
 
@@ -63,3 +65,7 @@ RUN set -x \
   && bash -n /opt/dusk.install/sbin/initialize-dusk-state.sh \
   && systemctl enable initialize-dusk-state.service \
   && true
+
+COPY autologin.conf /etc/systemd/system/console-getty.service.d/
+COPY securetty /etc/securetty
+COPY pam.d.login /etc/pam.d/login

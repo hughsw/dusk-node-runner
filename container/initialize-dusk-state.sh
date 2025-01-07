@@ -32,7 +32,7 @@ set -x
 # we don't try to dissect possible reasons for failure...
 cmp $dusk_target_dir/nonce $wallet_target_dir/nonce
 
-echo RUSK_PUBLIC_ADDRESS: $RUSK_PUBLIC_ADDRESS
+#echo RUSK_PUBLIC_ADDRESS: $RUSK_PUBLIC_ADDRESS
 
 sed -i \
     -e "s/# log_type = 'json'/log_type = 'json'/" \
