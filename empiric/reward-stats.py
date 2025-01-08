@@ -14,6 +14,14 @@ my_stake_dusk = float(sys.argv[1])
 
 # Hoping that GraphQL will let us query for all these constants and endpoints...
 
+# rusk/w3sper.js/src/network/components/node.js
+# curl -i -sSL -X POST 'http://localhost:8080/on/node/provisioners'
+# curl -i -sSL -X POST 'http://localhost:8080/on/node/info'
+
+# rusk/w3sper.js/src/network/components/blocks.js
+# curl -i -sSL -X POST 'http://localhost:8080/on/blocks/gas-price'
+
+
 url = 'https://nodes.dusk.network/on/node/provisioners'
 dusk_point = 9  # log10 of LUX-per-DUSK
 node_normal_dusk = 1_000
