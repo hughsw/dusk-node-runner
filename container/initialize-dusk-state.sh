@@ -3,10 +3,12 @@
 set -euo pipefail
 
 dusk_src_dir=/opt/dusk.install
-wallet_src_dir=/root/.dusk.install
+wallet_src_dir=/home/duskadmin/.dusk.install
+#wallet_src_dir=/root/.dusk.install
 
 dusk_target_dir=/opt/dusk
-wallet_target_dir=/root/.dusk
+wallet_target_dir=/home/duskadmin/.dusk
+#wallet_target_dir=/root/.dusk
 
 #mount
 
@@ -20,6 +22,9 @@ if [ \( ! -e $dusk_target_dir -o -z "$(ls -A $dusk_target_dir)" \) -a \( ! -e $w
     nonce=${timestamp}_${tag}
     echo nonce: $nonce
 
+    # we don't change the owner of the nonce because:
+    # - more complexity
+    # - perhaps leaving as root is one more barrier to accidental corruption
     cp -a $dusk_src_dir/. $dusk_target_dir
     echo $nonce | tee $dusk_target_dir/nonce
 

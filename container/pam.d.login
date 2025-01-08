@@ -1,6 +1,7 @@
 # TODO: implement a way to add these two lines to top of existing /etc/pam.d/login
-# no password for root login on tty in /etc/securetty
-auth sufficient pam_listfile.so item=tty sense=allow file=/etc/securetty onerr=fail apply=root
+# no password for --autologin duskadmin in autologin.conf on tty in /etc/securetty
+auth sufficient pam_listfile.so item=tty sense=allow file=/etc/securetty onerr=fail apply=duskadmin
+#auth sufficient pam_listfile.so item=tty sense=allow file=/etc/securetty onerr=fail apply=root
 
 #
 # The PAM configuration file for the Shadow `login' service
