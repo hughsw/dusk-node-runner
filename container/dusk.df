@@ -34,11 +34,16 @@ RUN set -x \
        less \
        logrotate \
        net-tools \
+       python3-full \
+       python3-pip \
        sudo \
        ufw \
        unzip \
   && systemctl mask systemd-timesyncd.service systemd-resolved.service \
   && true
+
+#       python3-bip-utils \
+
 
 # setup privileged user duskadmin with sudo and autologin on the "console"
 RUN set -x \
@@ -52,14 +57,24 @@ COPY pam.d.login /etc/pam.d/login
 COPY autologin.conf /etc/systemd/system/console-getty.service.d/
 
 
+# Install tools for duskadmin
+
+WORKDIR /home/duskadmin
+
+USER duskadmin:duskadmin
+RUN set -x \
+  && python3 -m venv --system-site-packages ./pyvenv \
+  && ./pyvenv/bin/pip3 install bip-utils \
+  && true
+USER root:root
+
+
 # Try to set up dusk node as duskadmin as per https://github.com/dusk-network/node-installer
 # But USER doesn't put an entry in utmp file so logname (used by node-installer.sh)
 # returns root, so wallet is installed in /root/.dusk, so we have to manually move it to
 # /home/duskadmin...
 
-#USER duskadmin:dusk
-WORKDIR /home/duskadmin
-COPY --chown=duskadmin:dusk ./node-installer.sh /home/duskadmin/
+COPY --chown=duskadmin:duskadmin ./node-installer.sh /home/duskadmin/
 
 RUN set -x \
   && bash -x node-installer.sh \
@@ -87,3 +102,14 @@ RUN set -x \
   && bash -n /opt/dusk.install/sbin/initialize-dusk-state.sh \
   && systemctl enable initialize-dusk-state.service \
   && true
+
+
+# oft-modified tooling
+COPY --chown=duskadmin:duskadmin ./mnemonic.py /home/duskadmin/
+
+WORKDIR /home/duskadmin
+RUN set -x \
+  && ./pyvenv/bin/python3 ./mnemonic.py \
+  && true
+
+WORKDIR /root
