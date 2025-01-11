@@ -1,0 +1,27 @@
+#!/home/duskadmin/pyvenv/bin/python3
+
+# Generate a random mnemonic string of English 12 words
+
+import sys
+
+from bip_utils import (
+    Bip39MnemonicGenerator,
+    Bip39Languages,
+    Bip39WordsNum,
+    Bip39MnemonicValidator,
+)
+
+def generate_mnemonic():
+    # Generate mnemonic, validate it, print it
+    mnemonic = Bip39MnemonicGenerator(Bip39Languages.ENGLISH).FromWordsNumber(Bip39WordsNum.WORDS_NUM_12)
+    is_valid = Bip39MnemonicValidator(Bip39Languages.ENGLISH).IsValid(mnemonic)
+    assert is_valid, str((mnemonic,))
+
+    return mnemonic
+
+def print_mnemonic():
+    mnemonic = generate_mnemonic()
+    print(f'{mnemonic}')
+
+if __name__ == '__main__':
+    sys.exit(print_mnemonic())

@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Useful message for the duskadmin user autologged into the console
+echo ""
+echo "This shell is running in the console of a container that is"
+echo "running a DUSK provisioner node.  You should only get this"
+echo "console during development work.  If you exit this shell, the"
+echo "container will keep running and will start another autologin."
+echo ""
+echo "To cleanly shut down container itself (poweroff), run the following:"
+echo '$ rusk-wallet unstake'
+echo '$ sudo shutdown now'
+echo ""

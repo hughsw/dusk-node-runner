@@ -34,14 +34,15 @@ RUN set -x \
        less \
        logrotate \
        net-tools \
-       python3-full \
        python3-pip \
+       python3-venv \
        sudo \
        ufw \
        unzip \
   && systemctl mask systemd-timesyncd.service systemd-resolved.service \
   && true
 
+#       python3-full \
 #       python3-bip-utils \
 
 
@@ -55,18 +56,16 @@ RUN set -x \
 COPY securetty /etc/securetty
 COPY pam.d.login /etc/pam.d/login
 COPY autologin.conf /etc/systemd/system/console-getty.service.d/
-
+COPY 70-shutdown /etc/update-motd.d/
 
 # Install tools for duskadmin
 
-WORKDIR /home/duskadmin
-
 USER duskadmin:duskadmin
+WORKDIR /home/duskadmin
 RUN set -x \
   && python3 -m venv --system-site-packages ./pyvenv \
   && ./pyvenv/bin/pip3 install bip-utils \
   && true
-USER root:root
 
 
 # Try to set up dusk node as duskadmin as per https://github.com/dusk-network/node-installer
@@ -75,14 +74,13 @@ USER root:root
 # /home/duskadmin...
 
 COPY --chown=duskadmin:duskadmin ./node-installer.sh /home/duskadmin/
-
+USER root:root
 RUN set -x \
   && bash -x node-installer.sh \
   && mv /root/.dusk /home/duskadmin/.dusk \
   && chown -R duskadmin:dusk /home/duskadmin/.dusk \
   && true
 
-USER root:root
 WORKDIR /root
 
 # TODO: evaluate for the best way to initialize the (optional?) mounted storage...
@@ -103,13 +101,17 @@ RUN set -x \
   && systemctl enable initialize-dusk-state.service \
   && true
 
+ENV PATH="/home/duskadmin/bin/:$PATH"
 
 # oft-modified tooling
-COPY --chown=duskadmin:duskadmin ./mnemonic.py /home/duskadmin/
+COPY --chown=duskadmin:duskadmin ./mnemonic /home/duskadmin/bin/
 
+USER duskadmin:duskadmin
 WORKDIR /home/duskadmin
 RUN set -x \
-  && ./pyvenv/bin/python3 ./mnemonic.py \
+  && /home/duskadmin/bin/mnemonic \
+  && mnemonic \
   && true
 
+USER root:root
 WORKDIR /root
