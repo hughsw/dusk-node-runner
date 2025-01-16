@@ -64,7 +64,10 @@ USER duskadmin:duskadmin
 WORKDIR /home/duskadmin
 RUN set -x \
   && python3 -m venv --system-site-packages ./pyvenv \
-  && ./pyvenv/bin/pip3 install bip-utils \
+  && ./pyvenv/bin/pip3 install \
+       bip-utils \
+       requests \
+       websockets \
   && true
 
 
@@ -98,10 +101,12 @@ COPY ./initialize-dusk-state.sh /opt/dusk.install/sbin/
 RUN set -x \
   && systemd-analyze verify --recursive-errors=yes /etc/systemd/system/initialize-dusk-state.service \
   && bash -n /opt/dusk.install/sbin/initialize-dusk-state.sh \
+  && systemctl disable rusk.service \
   && systemctl enable initialize-dusk-state.service \
   && true
 
 ENV PATH="/home/duskadmin/bin/:$PATH"
+ENV API_ENDPOINT=https://nodes.dusk.network
 
 # oft-modified tooling
 COPY --chown=duskadmin:duskadmin ./mnemonic /home/duskadmin/bin/
@@ -115,3 +120,14 @@ RUN set -x \
 
 USER root:root
 WORKDIR /root
+
+RUN set -x \
+  && export DEBIAN_FRONTEND=noninteractive \
+  && apt-get install -y \
+       emacs-nox \
+  && apt-get remove -y \
+       mailutils-common \
+       mysql-common \
+       postfix \
+  && apt-get autoremove -y \
+  && true
