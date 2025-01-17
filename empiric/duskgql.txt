@@ -1,0 +1,130 @@
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Tue, 14 Jan 2025 20:31:40 GMT
+Transfer-Encoding: chunked
+Connection: keep-alive
+rusk-version: 1.0.0
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, POST, OPTIONS, DELETE
+Access-Control-Allow-Headers: *
+Connection: close
+
+type Block {
+	header: Header!
+	transactions: [SpentTransaction!]!
+	reward: Int!
+	fees: Int!
+	gasSpent: Int!
+}
+
+type BlockPair {
+	json: JSON!
+}
+
+
+type CallData {
+	contractId: String!
+	fnName: String!
+	data: String!
+}
+
+type ContractEvents {
+	json: JSON!
+}
+
+type DeserializedMoonlightGroups {
+	json: JSON!
+}
+
+
+type Header {
+	version: Int!
+	height: Int!
+	prevBlockHash: String!
+	timestamp: Int!
+	hash: String!
+	stateHash: String!
+	generatorBlsPubkey: String!
+	txRoot: String!
+	gasLimit: Int!
+	seed: String!
+	iteration: Int!
+	json: String!
+}
+
+
+
+"""
+A scalar that can represent any JSON value.
+"""
+scalar JSON
+
+type MoonlightTransfers {
+	json: JSON!
+}
+
+type Query {
+	block(height: Float, hash: String): Block
+	tx(hash: String!): SpentTransaction
+	transactions(last: Int!): [SpentTransaction!]!
+	blockTxs(last: Int, range: [Int!], contract: String): [SpentTransaction!]!
+	blocks(last: Int, range: [Int!]): [Block!]!
+	mempoolTxs: [Transaction!]!
+	mempoolTx(hash: String!): Transaction
+	"""
+	Get a pair of two tuples containing the height and hash of the last
+	block and the last finalized block.
+	"""
+	lastBlockPair: BlockPair!
+	fullMoonlightHistory(address: String!, ord: String): DeserializedMoonlightGroups
+	moonlightHistory(sender: String, receiver: String, fromBlock: Int, toBlock: Int, maxCount: Int, pageCount: Int): MoonlightTransfers
+	transactionsByMemo(memo: String!): MoonlightTransfers
+	"""
+	Get contract events by height or hash.
+	"""
+	contractEvents(height: Int, hash: String): ContractEvents
+	"""
+	Get all finalized contract events from a specific contract id.
+	"""
+	finalizedEvents(contractId: String!): ContractEvents
+	"""
+	Check if a given block height matches a given block hash.
+	
+	If `only_finalized` is set to `true`, only finalized blocks will be
+	checked `only_finalized` is set to `false` by default.
+	"""
+	checkBlock(height: Int!, hash: String!, onlyFinalized: Boolean): Boolean!
+	"""
+	Get the next block height that contains a Phoenix event after the given
+	block height.
+	"""
+	nextPhoenix(height: Int!): Int
+}
+
+type SpentTransaction {
+	tx: Transaction!
+	err: String
+	gasSpent: Int!
+	blockHash: String!
+	blockHeight: Int!
+	blockTimestamp: Int!
+	id: String!
+	raw: String!
+}
+
+
+type Transaction {
+	raw: String!
+	json: String!
+	id: String!
+	gasLimit: Int!
+	gasPrice: Int!
+	txType: String!
+	callData: CallData
+	isDeploy: Boolean!
+	memo: String
+}
+
+schema {
+	query: Query
+}

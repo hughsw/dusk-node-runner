@@ -62,6 +62,22 @@ my_stake_dusk = float(sys.argv[1])
     'query { fullMoonlightHistory(address:"t3hhgUWKSMJFrTHA9kHgCX7PkovZy5XS8LEFMm5wrSaADjD5kv6VWYsuEmYMhfwvdoxbL5cgfka6pPyNwKrWo33erV1zt1yb1ysJu6roX9JCFHSQ9mVButSAvvpCSSPfcE9", ord:"asc") { json } }' \
     https://nodes.dusk.network/on/graphql/query \
     | jq .fullMoonlightHistory.json
+
+ curl -sSL -H 'Content-Type: application/json' -X POST --data-raw \
+     'query { contractEvents(height: -1) { json } }' \
+    https://nodes.dusk.network/on/graphql/query \
+    | jq .
+
+        "source": "0200000000000000000000000000000000000000000000000000000000000000",
+
+ curl -sSL -H 'Content-Type: application/json' -X POST --data-raw \
+     'query { finalizedEvents(contractId: "0200000000000000000000000000000000000000000000000000000000000000") { json } }' \
+     *** HUGE ***
+    https://nodes.dusk.network/on/graphql/query \
+    | jq .
+
+
+
 """
 
 url = 'https://nodes.dusk.network/on/node/provisioners'
