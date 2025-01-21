@@ -1,0 +1,45 @@
+FROM duskies-base
+
+# Install tools for client
+
+WORKDIR /app/client
+
+RUN  true \
+RUN set -x \
+  && curl -fsSL https://deb.nodesource.com/setup_23.x | tee nodejs_setup.sh > /dev/null \
+  && bash -n nodejs_setup.sh \
+  && bash nodejs_setup.sh \
+  && apt-get install -y nodejs \
+  && npm install -g npm \
+  && true
+
+#  && npm audit fix --force \
+
+RUN set -x \
+  && npm install -g sv \
+  && npx sv create --help \
+  && npx sv create  --template library --types ts  --no-add-ons my-app \
+  && cd my-app \
+  && cat package.json \
+  && npm install \
+  && npm install d3 \
+  && npm run prepack \
+  && true
+
+# npm run prepack is so that 'svelte-kit sync' gets run once...
+#  && npx sv create --template library --types ts  --types jsdoc --no-add-ons my-app \
+
+
+WORKDIR /app/client/my-app
+
+RUN set -x \
+  && npm audit fix || true \
+  && npm audit fix --force || true \
+  && true
+
+RUN cat README.md
+
+CMD ["npm", "run", "dev"]
+
+#  && npx sv create --help \
+#  && npm audit fix --force \

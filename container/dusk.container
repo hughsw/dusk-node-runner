@@ -1,0 +1,23 @@
+# GRRR  https://docs.podman.io/en/v4.4/markdown/.5.html
+
+[Unit]
+Description=Dusk provisioner node (podman container)
+After=local-fs.target
+
+[Container]
+Image=localhost/dusk
+Network=hostman
+Volume=/home/hugh/bc/dusk-node-runner/container/dusk_state/opt_dusk:/opt/dusk
+Volume=/home/hugh/bc/dusk-node-runner/container/dusk_state/root_.dusk:/home/duskadmin/.dusk
+Volume=/home/hugh/bc/dusk-node-runner/container/dusk_state/rusk.log:/var/log/rusk.log
+Volume=/home/hugh/bc/dusk-node-runner/container/dusk_state/rusk_recovery.log:/var/log/rusk_recovery.log
+User=1002
+Group=1002
+#RemapUsers=keep-id
+#RemapUid=
+#RemapGid=
+#PodmanArgs=--userns=keep-id:uid=999,gid=1001
+#ExecStart=podman run … localhost/dusk
+
+[Install]
+WantedBy=multi-user.target

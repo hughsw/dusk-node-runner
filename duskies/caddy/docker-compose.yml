@@ -1,0 +1,47 @@
+---
+version: '3.8'
+
+services:
+
+  # Caddy acts as our external-facing webserver and handles
+  # getting TLS certs from LetsEncrypt.
+  caddy:
+    image: docker.io/library/caddy:2.9-alpine
+    container_name: caddy
+    restart: unless-stopped
+    networks:
+      - caddy_net
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - ..:/srv:z
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./data:/data
+      - ./config:/config
+
+  duskies-api:
+    image: localhost/duskies-api:latest
+    container_name: duskies-api
+    restart: unless-stopped
+    networks:
+      - caddy_net
+    ports:
+      - 8002:8000
+
+  duskies-client:
+    image: localhost/duskies-client:latest
+    container_name: duskies-client
+    restart: unless-stopped
+    networks:
+      - caddy_net
+    ports:
+      - 8001:5173
+
+networks:
+  caddy_net:
+    name: caddy_net
+    driver: bridge
+    enable_ipv6: true
+    

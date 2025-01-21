@@ -39,9 +39,10 @@ RUN set -x \
        sudo \
        ufw \
        unzip \
-  && systemctl mask systemd-timesyncd.service systemd-resolved.service \
+  && systemctl mask systemd-resolved.service systemd-timesyncd.service \
   && true
 
+#  && pip3 install --upgrade pip \
 #       python3-full \
 #       python3-bip-utils \
 
@@ -60,6 +61,17 @@ COPY 70-shutdown /etc/update-motd.d/
 
 # Install tools for duskadmin
 
+RUN set -x \
+  && export DEBIAN_FRONTEND=noninteractive \
+  && apt-get install -y \
+       emacs-nox \
+  && apt-get remove -y \
+       mailutils-common \
+       mysql-common \
+       postfix \
+  && apt-get autoremove -y \
+  && true
+
 USER duskadmin:duskadmin
 WORKDIR /home/duskadmin
 RUN set -x \
@@ -71,7 +83,7 @@ RUN set -x \
   && true
 
 
-# Try to set up dusk node as duskadmin as per https://github.com/dusk-network/node-installer
+# NOTE: OUT-OF-DATE Try to set up dusk node as duskadmin as per https://github.com/dusk-network/node-installer
 # But USER doesn't put an entry in utmp file so logname (used by node-installer.sh)
 # returns root, so wallet is installed in /root/.dusk, so we have to manually move it to
 # /home/duskadmin...
@@ -101,9 +113,10 @@ COPY ./initialize-dusk-state.sh /opt/dusk.install/sbin/
 RUN set -x \
   && systemd-analyze verify --recursive-errors=yes /etc/systemd/system/initialize-dusk-state.service \
   && bash -n /opt/dusk.install/sbin/initialize-dusk-state.sh \
-  && systemctl disable rusk.service \
   && systemctl enable initialize-dusk-state.service \
   && true
+
+#  && systemctl disable rusk.service \
 
 ENV PATH="/home/duskadmin/bin/:$PATH"
 ENV API_ENDPOINT=https://nodes.dusk.network
@@ -120,14 +133,3 @@ RUN set -x \
 
 USER root:root
 WORKDIR /root
-
-RUN set -x \
-  && export DEBIAN_FRONTEND=noninteractive \
-  && apt-get install -y \
-       emacs-nox \
-  && apt-get remove -y \
-       mailutils-common \
-       mysql-common \
-       postfix \
-  && apt-get autoremove -y \
-  && true

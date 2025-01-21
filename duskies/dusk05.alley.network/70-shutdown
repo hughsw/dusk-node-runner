@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Useful message for the duskadmin user autologged into the console
+echo ""
+echo "This shell is an autologin in the console of a container. You should only"
+echo "find yourself in this console during development work.  If you exit"
+echo "this shell, the container will keep running and will start another autologin."
+echo ""
+echo "To cleanly shut down container itself (poweroff), run the following:"
+echo '$ sudo shutdown now'
+echo ""

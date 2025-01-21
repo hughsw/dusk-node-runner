@@ -2,4 +2,4 @@ force-rebuild-nonce
 node-installer.sh
 /build.logs/
 /run.logs/
-/dusk_state/
+/dusk_state*/

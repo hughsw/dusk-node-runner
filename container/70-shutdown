@@ -8,6 +8,5 @@ echo "console during development work.  If you exit this shell, the"
 echo "container will keep running and will start another autologin."
 echo ""
 echo "To cleanly shut down container itself (poweroff), run the following:"
-echo '$ rusk-wallet unstake'
-echo '$ sudo shutdown now'
+echo '$ rusk-wallet unstake ; sudo shutdown now'
 echo ""

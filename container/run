@@ -21,17 +21,20 @@ mkdir -p $log_dir
     mkdir -p dusk_state/opt_dusk dusk_state/root_.dusk
     touch dusk_state/rusk.log dusk_state/rusk_recovery.log
 
+    # NOTE: --userns=keep-id maps uid of user dusk (101) and gid of group duskadmin (1001)
     podman run \
            -it \
            --rm \
            --network=host \
            --name dusk \
            -v $(pwd)/dusk_state/opt_dusk:/opt/dusk \
-           -v $(pwd)/dusk_state/root_.dusk:/root/.dusk \
+           -v $(pwd)/dusk_state/root_.dusk:/home/duskadmin/.dusk \
            -v $(pwd)/dusk_state/rusk.log:/var/log/rusk.log \
            -v $(pwd)/dusk_state/rusk_recovery.log:/var/log/rusk_recovery.log \
+           --userns=keep-id:uid=999,gid=1001 \
            dusk
 
+#           -v $(pwd)/dusk_state/root_.dusk:/root/.dusk \
 #           --cap-add=CAP_SYS_ADMIN \
 #           --env RUSK_PUBLIC_ADDRESS=51.81.210.195:9000 \
 #           -p 9000:9000/udp \

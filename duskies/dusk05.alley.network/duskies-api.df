@@ -1,0 +1,31 @@
+FROM duskies-base
+
+RUN  true \
+  && dpkg-reconfigure debconf --frontend=noninteractive \
+  && apt-get install -y \
+      cmake \
+      python3-fastapi \
+      python3-jinja2 \
+      python3-multipart \
+      python3-pypdf \
+      python3-uvicorn \
+      python3-venv \
+  && true
+
+WORKDIR /app/pyvenv
+RUN true \
+  && python3 -m venv --system-site-packages /app/pyvenv \
+  && . /app/pyvenv/bin/activate \
+  && python3 -m pip install --upgrade pip \
+  && pip3 install \
+       papersize \
+  && true
+
+WORKDIR /app/api
+
+CMD ["/app/api/cauvicorn", "--host", "0.0.0.0", "--port", "8000", "--reload", "main:app"]
+
+COPY src/app/cauvicorn   /app/api/
+COPY src/app/*.py  /app/api/
+RUN python3 -m py_compile /app/api/*.py
+#RUN ls -laR /app

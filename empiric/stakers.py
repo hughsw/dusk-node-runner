@@ -9,6 +9,10 @@ class attrdict(dict):
     # attrdict = type('attrdict', (dict,), {'__getattr__': lambda self, key: self[key]})
     def __getattr__(self, key):
         return self[key]
+    def __setattr__(self, key, value):
+        self[key] = value
+    def __delattr__(self, key):
+        del self[key]
 
 url = 'https://nodes.dusk.network/on/node/provisioners'
 dusk_point = 9  # log10 of LUX-per-DUSK
@@ -71,6 +75,9 @@ if False:
     for provisioner in provisioners:
         print(provisioner)
 
+def display_name(full_name):
+    return f'{full_name[:3]}..{full_name[-3:]}'
+
 total_lux = sum(provisioner.amount for provisioner in provisioners)
 amount_max_lux = max(provisioner.amount for provisioner in provisioners)
 amount_min_pos_lux = min(provisioner.amount for provisioner in provisioners if provisioner.amount > 0)
@@ -82,9 +89,37 @@ for provisioner in provisioners:
     provisioner.tag = provisioner.key[:7]
     provisioner.imspecial = provisioner.owner['Account'] != provisioner.key and provisioner.owner['Account'][:7]
     provisioner.fraction = provisioner.amount * (1 / total_lux)
-    provisioner.qb = int(math.ceil(math.pow(provisioner.amount * (1 / amount_min_pos_lux), 1/3)))
+    provisioner.qb = int(math.ceil(math.pow(provisioner.amount * (1 / amount_min_pos_lux), 1/3))) + 1
+    # for D3 circles
+    provisioner.value = provisioner.qb * provisioner.qb  #* provisioner.qb
+    provisioner.name = f'{display_name(provisioner.key)}_{int(lux_to_dusk(provisioner.amount) * (1 / minimum_stake_dusk))}'
+    #provisioner.name = f'{display_name(provisioner.key)}__{provisioner.value}'
 
-provisioners_sorted = sorted(provisioners, key=lambda p: p.amount, reverse=True)
+# TODO: control of collation of p.key, e.g. lower, upper, number...
+provisioners_sorted = sorted(provisioners, key=lambda p: (-p.amount, p.key))  #, reverse=True)
+
+
+team = attrdict(name='Team', children=list())
+community = attrdict(name='Community', children=list())
+nodeless = attrdict(name='Nodeless', children=list())
+provisioners = attrdict(name='Provisioners', children=[team, community])
+duskies = attrdict(name='Duskies', children=[provisioners, nodeless])
+zoomies = attrdict(name='zoomies', children=[duskies])
+
+team_children = team.children
+community_children = community.children
+nodeless_children = nodeless.children
 
 for provisioner in provisioners_sorted:
-    print(f'  tag: {provisioner.tag}, qb: {provisioner.qb}, percent: {100*provisioner.fraction:.4}%  fraction: {provisioner.fraction}, imspecial: {provisioner.imspecial or ""}')
+    print(f'  name: {provisioner.name}, value: {provisioner.value}, percent: {100*provisioner.fraction:.4}%  fraction: {provisioner.fraction}, imspecial: {provisioner.imspecial or ""}')
+    #print(f'  tag: {provisioner.tag}, qb: {provisioner.qb}, percent: {100*provisioner.fraction:.4}%  fraction: {provisioner.fraction}, imspecial: {provisioner.imspecial or ""}')
+    (team_children if provisioner.imspecial else community_children).append(provisioner)
+
+    
+nodeless_1 = 'yYoKJQqea6yUKNNApToRR3ymNHihUPTEdFnv51AFLTQawERUh5oxqMUzKAXmNF3c1EEge41zaG9qW5q7bEbVouPfLiWxfbtBPdfU8kv3E3qBKC1uKqyGRabr9PTXkNpEZgf'
+
+nodeless_children.append(attrdict(name=display_name(nodeless_1), value=0.5))
+nodeless_children.append(attrdict(name=display_name(''.join(reversed(nodeless_1))), value=0.5))
+
+with open('/home/hugh/bc/dusk-node-runner/zoomable-circle-packing/files/duskies.json', 'wt') as duskies_file:
+    print(json.dumps(zoomies), file=duskies_file)
