@@ -23,7 +23,11 @@ RUN true \
 
 WORKDIR /app/api
 
-CMD ["/app/api/cauvicorn", "--host", "0.0.0.0", "--port", "8000", "--reload", "main:app"]
+EXPOSE 8000
+
+#CMD ["/app/api/cauvicorn", "--host", "0.0.0.0", "--port", "8000", "--reload", "main:app"]
+CMD ["/app/api/cauvicorn", "--host", "::", "--port", "8000", "main:app"]
+#CMD ["/app/api/cauvicorn", "--host", "0.0.0.0", "--port", "8000", "main:app"]
 
 COPY src/app/cauvicorn   /app/api/
 COPY src/app/*.py  /app/api/

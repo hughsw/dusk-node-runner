@@ -1,7 +1,9 @@
 
   podman exec -it dusk tail -f /var/log/rusk.log | grep -i -e 'block accepted' -e '\(warn\|error\)'
 
-  podman exec --user=duskadmin dusk /bin/dash -c 'RUSK_WALLET_PWD=4eZGpeDfh4VLkyGd8Ei6 rusk-wallet balance'
+  podman exec --user=duskadmin dusk /bin/dash -c 'export RUSK_WALLET_PWD=4eZGpeDfh4VLkyGd8Ei6 ; ruskquery block-height ; rusk-wallet --log-type=json stake-info ; rusk-wallet --log-type=json balance'
+
+  podman exec --user=duskadmin dusk /bin/dash -c 'printenv | sort'
 
   podman run -it --rm --name rusky --healthcheck-command 'CMD-SHELL echo hello && exit 2 || exit 1' --healthcheck-interval=0  -v $(pwd):/app --workdir /app localhost/dusk:latest emacs myblock.py
 

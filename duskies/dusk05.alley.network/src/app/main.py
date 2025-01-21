@@ -11,14 +11,18 @@ from fastapi.responses import StreamingResponse
 #from utils import attrdict
 #from fold import fold, copy
 
+print('main.py():')
 app = FastAPI()
 
 @app.get('/')
 async def read_root():
-    return {'Hello': 'tinybook'}
+    return dict(Hello='tinybook')
+    #return {'Hello': 'tinybook'}
 
 
 @app.get('/items/{item_id}')
 async def read_item(item_id: int, q: Union[str, None] = None):
     #print(f'/items/: item_id: {item_id}')
     return {'item_id': item_id, 'q': q}
+
+print('main.py: done')

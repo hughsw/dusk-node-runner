@@ -45,4 +45,9 @@ RUN set -x \
        tmux \
        unzip \
        wget \
+  && apt-get remove -y \
+       mailutils-common \
+       mysql-common \
+       postfix \
+  && apt-get autoremove -y \
   && true

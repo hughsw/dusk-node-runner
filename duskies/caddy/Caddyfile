@@ -5,18 +5,18 @@
 }
 
 dusk05.alley.network {
-#    handle_path /api/* {
-#      reverse_proxy duskies-api:8002
-#    }
+    handle_path /api/* {
+      reverse_proxy duskies-api:8002
+    }
 
-    reverse_proxy duskies-client:8001
+#    reverse_proxy duskies-client:8001
 
     #reverse_proxy duskies-api:8000 
     #    reverse_proxy duskies:8000
 
-#        root * /srv/dusk05.alley.network
-#        templates
-#        file_server browse
-#        encode zstd gzip
+        root * /srv/dusk05.alley.network
+        templates
+        file_server browse
+        encode zstd gzip
 
 }

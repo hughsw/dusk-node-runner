@@ -16,17 +16,17 @@ RUN set -x \
 #  && npm audit fix --force \
 
 RUN set -x \
-  && npm install -g sv \
+  && npm install -g sv d3 \
   && npx sv create --help \
   && npx sv create  --template library --types ts  --no-add-ons my-app \
   && cd my-app \
   && cat package.json \
   && npm install \
-  && npm install d3 \
-  && npm run prepack \
+  && npm run check \
   && true
 
-# npm run prepack is so that 'svelte-kit sync' gets run once...
+# npm run check is so that 'svelte-kit sync' gets run once...
+
 #  && npx sv create --template library --types ts  --types jsdoc --no-add-ons my-app \
 
 

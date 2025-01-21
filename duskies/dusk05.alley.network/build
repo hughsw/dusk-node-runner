@@ -28,6 +28,7 @@ mkdir -p $log_dir
     set -x
 
     $containerizer build -f ${name_tag}.df -t ${name_tag} .
+    $containerizer image tag ${name_tag} localhost/${name_tag}:latest
 
 
 } 2>&1 | tee $log_file
