@@ -18,19 +18,28 @@ RUN set -x \
 RUN set -x \
   && npm install -g sv d3 \
   && npx sv create --help \
-  && npx sv create  --template library --types ts  --no-add-ons my-app \
-  && cd my-app \
-  && cat package.json \
-  && npm install \
-  && npm run check \
+  && npx sv create  --template library --types ts  --no-add-ons  my-app \
   && true
 
-# npm run check is so that 'svelte-kit sync' gets run once...
+#  && cd my-app \
 
 #  && npx sv create --template library --types ts  --types jsdoc --no-add-ons my-app \
 
-
 WORKDIR /app/client/my-app
+COPY vite.config.ts /app/client/my-app/
+RUN set -x \
+  && echo && echo package.json: && cat package.json \
+  && echo && echo svelte.config.js: && cat svelte.config.js \
+  && echo && echo tsconfig.json: && cat tsconfig.json \
+  && echo && echo vite.config.ts: && cat vite.config.ts \
+  && npm install \
+  && npm run check \
+  && echo && echo .svelte-kit/tsconfig.json: && cat .svelte-kit/tsconfig.json \
+  && true
+
+# npm run check is so that 'svelte-kit sync' gets run once and populates missing config
+
+
 
 RUN set -x \
   && npm audit fix || true \
@@ -39,6 +48,8 @@ RUN set -x \
 
 RUN cat README.md
 
+
+#CMD ["npm", "run", "dev", "--host", "0.0.0.0"]
 CMD ["npm", "run", "dev"]
 
 #  && npx sv create --help \

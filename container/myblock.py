@@ -9,6 +9,7 @@
 import asyncio
 import requests
 import json
+import time
 from functools import partial
 
 from websockets.asyncio.client import connect
@@ -43,7 +44,26 @@ get = partial(asyncio.to_thread, requests.get)
 #def printio(*args, **kwargs):
 #    return asyncio.to_thread(print, *args, **kwargs)
 
+class BlockStats(object):
+
+    def __init__(self):
+        self.client_timestamp_prev = None
+        self.client_timestamp_finalized_prev = None
+
+    async def event(self, event, client_timestamp):
+        details = unpack_event(event)
+        details.client_timestamp = client_timestamp
+        details.client_timestamp_interval = client_timestamp - self.client_timestamp_prev if self.client_timestamp_prev is not None else None
+        if details.event_type == 'blocks/statechange/finalized':
+            details.client_finalized_interval = client_timestamp - self.client_timestamp_finalized_prev if self.client_timestamp_finalized_prev is not None else None
+            self.client_timestamp_finalized_prev = client_timestamp
+        self.client_timestamp_prev = client_timestamp
+
+        await printio(f'BlockStats.event: details: {details}')
+
 async def hello():
+    block_stats = BlockStats()
+
     websocket = None
     try:
         # Ding!
@@ -68,12 +88,13 @@ async def hello():
             headers = {'Rusk-Session-Id': rusk_session_id}
 
             events_to_watch = (
+                #'blocks/',
                 'blocks/accepted',
-                #'blocks/statechange',
+                'blocks/statechange',
                 'transactions/Executed',
-                #'contracts/deploy',
                 'contracts/',
                 #'contracts:/',
+                'contracts/deploy',
                 'contracts:0200000000000000000000000000000000000000000000000000000000000000/',
                 )
 
@@ -104,6 +125,7 @@ async def hello():
                 event = None
                 try:
                     event = await websocket.recv()
+                    client_timestamp = time.time()
                     #await printio(f'type(event): {type(event)}')
                     #await printio(f'event: {repr(event)}')
                     #if event.find(b'21mif6HvgdLoJtLzibs42LZDtnwkf3518yfhBsTfVim2WZa3j8H9E64JHK4KWdc7W5KMDvoMk7zdY9ddeE1VuNQsks1suJzWDNf5mL5yBqjzdkdfWPaJjyg4rvJ1GqREuDBq') >= 0:
@@ -114,12 +136,14 @@ async def hello():
                     event_type = event[0:1]
                     match event_type:
                         case b'q':
-                            await transactions(event)
+                            await transactions(event, client_timestamp)
                             #await printio('transactions')
                         case b'n':
-                            await printio('\nstatechange')
+                            await block_stats.event(event, client_timestamp)
+                            #await blocks_statechange(event, client_timestamp)
                         case b'k':
-                            await blocks_accepted(event)
+                            await block_stats.event(event, client_timestamp)
+                            #await blocks_accepted(event, client_timestamp)
                         case _ as unhandled:
                             await printio(f'\nunhandled: {unhandled}, event_type: {repr(event_type)}, event: {event}')
 
@@ -129,7 +153,7 @@ async def hello():
                     await printio(f'\nexception: {type(e).__name__}: {e} : line: {e.__traceback__.tb_lineno}, event: {event}')
 
     except asyncio.CancelledError as e:
-        await printio()
+        await printio('\nasyncio.CancelledError')
         #await printio(f'except: type(e): {type(e)}, e: {e}')
     finally:
         if websocket is not None:
@@ -154,30 +178,50 @@ class attrdict(dict):
 
 def unpack_event(event, *, raw_decode = json.JSONDecoder().raw_decode):
     tag = event[:1].decode()
-    assert event[1:4] == b'\0\0\0', str((event,))
+    assert event[1:4] == b'\0\0\0', str((tag, event,))
 
+    # Note: should use a raw decode?
     payload = event[4:].decode()
     offset = 0
     items = list()
+    rest = None
     while offset < len(payload):
-        item, extent = raw_decode(payload[offset:])
-        items.append(item)
-        offset += extent
+        try:
+            item, extent = raw_decode(payload[offset:])
+            items.append(item)
+            offset += extent
+        except:
+            items.append(attrdict(rest=payload[offset:]))
+            offset = len(payload)
 
-    assert len(items) == 2, str((len(items), items, event))
+    #assert len(items) == 2, str((len(items), items, event))
     
-    return attrdict(tag=tag, location=items[0]['Content-Location'], content=items[1])
+    location = items[0]['Content-Location']
+    parts = location.split('/')[2:]
+    type = parts[0].split(':')[0]
+    topic = parts[1]
+    event_type = f'{type}/{topic}'
+
+    content = attrdict(items[1])
+    # grrr, separation of concerns
+    if event_type == 'blocks/statechange':
+        event_type += f'/{content.state}'
+    
+    return attrdict(tag=tag, event_type=event_type, location=location, content=content, items=items[2:], rest=rest)
 
 
 # babylonian digits
 def base60p(num, *, babyl='.123456789abcdefghijkmnopqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ'):
     return babyl[num] if num < len(babyl) else '+'
     
-async def blocks_accepted(event):
+async def blocks_statechange(event, client_timestamp):
     details = unpack_event(event)
     #tag, items = unpack_event(event)
 
-    assert details.tag == 'k', str((details.tag, event,))
+    assert details.tag == 'n', str(('n', details.tag, event,))
+
+    await printio(f'blocks_statechange: details: {json.dumps(details)}')
+    return
 
     #await printio(f'items: {json.dumps(items)}')
     header = details.content['header']
@@ -191,9 +235,31 @@ async def blocks_accepted(event):
     if generator_bls_pubkey in addresses:
         await printio(f'\a\nMy block !! :  height: {height}, timestamp: {timestamp:_}, generator_bls_pubkey: {generator_bls_pubkey[:7]}')
     
-async def transactions(event):
+async def blocks_accepted(event, client_timestamp):
     details = unpack_event(event)
-    assert details.tag == 'q', str((details.tag, event,))
+    #tag, items = unpack_event(event)
+
+    assert details.tag == 'k', str(('k', details.tag, event,))
+
+    await printio(f'blocks_accepted: details: {json.dumps(details)}')
+    return
+
+    #await printio(f'items: {json.dumps(items)}')
+    header = details.content['header']
+    height = header['height']
+    timestamp = header['timestamp']
+    generator_bls_pubkey = header['generator_bls_pubkey']
+    transactions_len = len(details.content['transactions'])
+    babyl = base60p(transactions_len)
+    await printio(f'{babyl}', end='', flush=True)
+    #await printio(f'generator_bls_pubkey: {generator_bls_pubkey}')
+    if generator_bls_pubkey in addresses:
+        await printio(f'\a\nMy block !! :  height: {height}, timestamp: {timestamp:_}, generator_bls_pubkey: {generator_bls_pubkey[:7]}')
+    
+async def transactions(event, client_timestamp):
+    details = unpack_event(event)
+    assert details.tag == 'q', str(('q', details.tag, event,))
+
     content = details.content
     block_height = content['block_height']
     gas_spent =content['gas_spent']

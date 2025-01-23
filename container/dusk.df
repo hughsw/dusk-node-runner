@@ -99,6 +99,7 @@ RUN set -x \
 WORKDIR /root
 
 # TODO: evaluate for the best way to initialize the (optional?) mounted storage...
+# could container's auto copy on first mount be used, but, would not have our nonce check in initialize-dusk-state.sh
 RUN set -x \
   && mv /opt/dusk /opt/dusk.install \
   && mv /home/duskadmin/.dusk  /home/duskadmin/.dusk.install \
