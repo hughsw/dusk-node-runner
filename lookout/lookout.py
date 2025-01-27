@@ -1,4 +1,4 @@
-#!/home/duskadmin/pyvenv/bin/python3
+#!/app/pyvenv/bin/python3
 
 # Alert on public key being the block generator
 
@@ -15,6 +15,7 @@ import websockets.exceptions
 print(f'dir(websockets.exceptions): {sorted(dir(websockets.exceptions))}')
 from websockets.exceptions import ConnectionClosedOK, WebSocketException
 from websockets.asyncio.client import connect
+from twilio.rest import Client
 
 addresses_str = '21mif6HvgdLoJtLzibs42LZDtnwkf3518yfhBsTfVim2WZa3j8H9E64JHK4KWdc7W5KMDvoMk7zdY9ddeE1VuNQsks1suJzWDNf5mL5yBqjzdkdfWPaJjyg4rvJ1GqREuDBq,uF2f77E9ezKnWxs5TudPAwnFFLqwMJwXABraC3oWaVbjPCwsAJfsJoGBR571W2nyMCKuWaTDqWBjXbLm8HWak2mAuCrXTvoFw3vjioVAcv5nUC7qQ9HKA5i1cNCd78WEHjt,nJsNHjb9k6XXBZ7iXPESkspnSrV5vQJf83j7kuQhTtFc82Z6EzHKWtyTxXMHSCZGJCNifWsZkTz9vxxQiTdYPZGiMFK93JX3LWcE69KuwMrdiEiCDKwEBow4LkG9RoAubCs'
 
@@ -26,6 +27,18 @@ rues_host = 'dusk03.alley.network'
 is_tls = True
 #rues_host = 'localhost:8080'
 #is_tls = False
+
+account_sid = get twilio account_sid
+auth_token = get twilio auth_token
+
+printio = partial(asyncio.to_thread, print)
+get = partial(asyncio.to_thread, requests.get)
+Clientio = partial(asyncio.to_thread, Client)
+
+
+
+# dusknet should have a 'constants' or 'tokenomics' endpoint...
+BLOCK_PER_EPOCH = 2_160
 
 
 tls_maybe = 's' if is_tls else ''
@@ -42,11 +55,12 @@ http_uri = f'{HTTP_SCHEME}://{rues_host_path}'
 #ws_uri = 'wss://nodes.dusk.network/on'
 #http_uri = 'https://nodes.dusk.network/on'
 
-printio = partial(asyncio.to_thread, print)
-get = partial(asyncio.to_thread, requests.get)
 
 #def printio(*args, **kwargs):
 #    return asyncio.to_thread(print, *args, **kwargs)
+
+def short_id(full_id):
+    return f'{full_id[:5]}...{full_id[-5:]}'
 
 class BlockStats(object):
 
@@ -56,16 +70,82 @@ class BlockStats(object):
 
     async def event(self, event, client_timestamp):
         details = unpack_event(event)
+
         details.client_timestamp = client_timestamp
         details.client_timestamp_interval = client_timestamp - self.client_timestamp_prev if self.client_timestamp_prev is not None else None
+
         if details.event_type == 'blocks/statechange/finalized':
             details.client_finalized_interval = client_timestamp - self.client_timestamp_finalized_prev if self.client_timestamp_finalized_prev is not None else None
             self.client_timestamp_finalized_prev = client_timestamp
+
+        if details.event_type == 'blocks/accepted':
+            if details.content.header['generator_bls_pubkey'] in addresses:
+                header = attrdict(details.content.header)
+                pub_key = header.generator_bls_pubkey
+                short_key = short_id(pub_key)
+                await printio(f'yow: short_key: {short_key}, pub_key: {pub_key}')
+                height = header.height
+                epoch = height // BLOCK_PER_EPOCH
+                timestamp = time.strftime('%Y-%m-%d-%H%M-%S', time.gmtime(details.client_timestamp))
+                message = f'mint: DUSK, epoch: {epoch:_}, height: {height:_}, timestamp: {timestamp}, key: {short_key}'
+                await printio(message)
+                emit_res = await emit_message(message)
+                await printio(f'emit_res: {emit_res}')
+
         self.client_timestamp_prev = client_timestamp
 
         await printio(f'BlockStats.event: details: {details}')
 
-async def hello():
+
+async def emit_message(message):
+    client = await Clientio(account_sid, auth_token)
+    createio = partial(asyncio.to_thread, client.messages.create)
+    message_res = await createio(
+        from_ = '+18338585345',
+        to = '+18777804236',
+        body = message,
+        #to='+19785010114',
+    )
+    return message_res
+
+    #client = Client(account_sid, auth_token)
+
+    async def send(message):
+        message = await createio(
+            from_ = '+18338585345',
+            body = message,
+            #to='+19785010114'
+            to = '+18777804236',
+        )
+
+        sid = message.sid
+        return asyncio.gather(*(
+            printio(f'sid: {sid}, dir(message): {dir(message)}'),
+            printio(f'sid: {sid}, message.sid: {message.sid}'),
+            printio(f'sid: {sid}, message.body: {message.body}'),
+            printio(f'sid: {sid}, message.price: {message.price}'),
+            printio(f'sid: {sid}, message.price_unit: {message.price_unit}'),
+            printio(f'sid: {sid}, message.status: {message.status}'),
+            printio(f'sid: {sid}, message: {message}'),
+            printio(f'sid: {sid}, message.__dict__: {json.dumps(message.__dict__, default = lambda x: "<" + type(x).__name__ + ">")}'),
+            ), return_exceptions=True)
+
+        if False:
+            await printio(f'sid: {sid}, dir(message): {dir(message)}')
+            await printio(f'sid: {sid}, message.sid: {message.sid}')
+            await printio(f'sid: {sid}, message.body: {message.body}')
+            await printio(f'sid: {sid}, message.price: {message.price}')
+            await printio(f'sid: {sid}, message.price_unit: {message.price_unit}')
+            await printio(f'sid: {sid}, message.status: {message.status}')
+            await printio(f'sid: {sid}, message: {message}')
+            await printio(f'sid: {sid}, message.__dict__: {json.dumps(message.__dict__, default = lambda x: "<" + type(x).__name__ + ">")}')
+
+    messages = (send() for _ in range(3))
+    result = await asyncio.gather(*messages, return_exceptions=True)
+    await printio(f'result: {result}')
+
+
+async def lookout():
     block_stats = BlockStats()
 
     while True:
@@ -96,11 +176,11 @@ async def hello():
                     #'blocks/',
                     'blocks/accepted',
                     'blocks/statechange',
-                    'transactions/Executed',
-                    'contracts/',
+                    #'transactions/Executed',
+                    #'contracts/',
                     #'contracts:/',
-                    'contracts/deploy',
-                    'contracts:0200000000000000000000000000000000000000000000000000000000000000/',
+                    #'contracts/deploy',
+                    #'contracts:0200000000000000000000000000000000000000000000000000000000000000/',
                     )
 
                 await printio(f'watch:')
@@ -141,6 +221,7 @@ async def hello():
                         event_type = event[0:1]
                         match event_type:
                             case b'q':
+                                assert False, str(('intended unreachable',))
                                 await transactions(event, client_timestamp)
                                 #await printio('transactions')
                             case b'n':
@@ -151,6 +232,7 @@ async def hello():
                                 #await blocks_accepted(event, client_timestamp)
                             case _ as unhandled:
                                 await printio(f'\nunhandled: {unhandled}, event_type: {repr(event_type)}, event: {event}')
+                                assert False, str(('intended unreachable',))
 
                     except asyncio.CancelledError:
                         raise
@@ -289,7 +371,7 @@ async def transactions(event, client_timestamp):
         await printio(f'\ntransaction: block_height: {block_height:_}, gas_spent: {gas_spent:_}, typ: {typ}, fn_name: {fn_name}')
 
 if __name__ == "__main__":
-    asyncio.run(hello())
+    asyncio.run(lookout())
     
 
 """

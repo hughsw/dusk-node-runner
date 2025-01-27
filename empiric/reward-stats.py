@@ -10,7 +10,8 @@ class attrdict(dict):
     def __getattr__(self, key):
         return self[key]
 
-my_stake_dusk = float(sys.argv[1])
+#my_stake_dusk = float(sys.argv[1])
+my_stake_dusk = 1_000
 
 # Hoping that GraphQL will let us query for all these constants and endpoints...
 
@@ -23,6 +24,7 @@ my_stake_dusk = float(sys.argv[1])
 # rusk/w3sper.js/src/network/components/blocks.js
 
 """
+ curl -i -sSL -X POST 'https://dusk03.alley.network/on/node/provisioners'
  curl -i -sSL -X POST 'http://localhost:8080/on/node/provisioners'
  curl -i -sSL -X POST 'http://localhost:8080/on/node/info'
 
@@ -80,7 +82,8 @@ my_stake_dusk = float(sys.argv[1])
 
 """
 
-url = 'https://nodes.dusk.network/on/node/provisioners'
+url = 'https://dusk03.alley.network/on/node/provisioners'
+#url = 'https://nodes.dusk.network/on/node/provisioners'
 dusk_point = 9  # log10 of LUX-per-DUSK
 node_normal_dusk = 1_000
 
@@ -89,23 +92,60 @@ def native_to_dusk(native, to_dusk_factor=1/math.pow(10, dusk_point)):
 
 block_reward_dusk_total = 19.8574
 # estimate based on limited understanding of the Incentive Structure in https://docs.dusk.network/learn/tokenomics/
-block_reward_dusk = 0.8 * block_reward_dusk_total
+#block_reward_dusk_typical = 0.8 * block_reward_dusk_total
+block_reward_dusk_typical = 16
+
+print(f'block_reward_dusk_total: {block_reward_dusk_total}')
+print(f'block_reward_dusk_typical: {block_reward_dusk_typical}')
+block_reward_dusk_16_factor = 16 / block_reward_dusk_typical
+print(f'block_reward_dusk_16_factor: {block_reward_dusk_16_factor}')
+
+
 block_reward_interval_sec = 10
 
-print(f'{16/block_reward_dusk}')
+YEAR_PER_PERIOD = 4
+BLOCK_PER_PERIOD = 12_614_400
+BLOCK_PER_EPOCH = 2_160
 
 SEC_PER_MIN = 60
 MIN_PER_HOUR = 60
 HOUR_PER_DAY = 24
 DAY_PER_WEEK = 7
-DAY_PER_YEAR = 365.2425
+DAY_PER_YEAR_365 = 365
+DAY_PER_YEAR_365_2425 = 365.2425
 MONTH_PER_YEAR = 12
+
+# seems to be what Dusk overlords use 
+DAY_PER_YEAR = DAY_PER_YEAR_365
+
 DAY_PER_MONTH = DAY_PER_YEAR / MONTH_PER_YEAR
 
-block_per_day = (SEC_PER_MIN * MIN_PER_HOUR * HOUR_PER_DAY) / block_reward_interval_sec
+
+epoch_per_period = BLOCK_PER_PERIOD / BLOCK_PER_EPOCH
+print(f'epoch_per_period: {epoch_per_period}')
+epoch_per_year = epoch_per_period / YEAR_PER_PERIOD
+print(f'epoch_per_year: {epoch_per_year}')
+epoch_per_day_365 = epoch_per_year / DAY_PER_YEAR_365
+epoch_per_day_365_2425 = epoch_per_year / DAY_PER_YEAR_365_2425
+print(f'epoch_per_day_365: {epoch_per_day_365}, epoch_per_day_365_2425: {epoch_per_day_365_2425}')
+
+epoch_per_day = epoch_per_year / DAY_PER_YEAR
+print(f'epoch_per_day: {epoch_per_day}')
+
+#block_per_day = (SEC_PER_MIN * MIN_PER_HOUR * HOUR_PER_DAY) / block_reward_interval_sec
+block_per_day = BLOCK_PER_EPOCH * epoch_per_day
 print(f'block_per_day: {block_per_day:.5}')
 
-block_reward_dusk_per_sec = block_reward_dusk * (1 / block_reward_interval_sec)
+sec_per_day = SEC_PER_MIN * MIN_PER_HOUR * HOUR_PER_DAY
+block_per_sec = block_per_day / sec_per_day
+print(f'block_per_sec: {block_per_sec}')
+
+reward_dusk_per_sec = block_reward_dusk_typical * block_per_sec
+reward_dusk_per_epoch = block_reward_dusk_typical * BLOCK_PER_EPOCH
+print(f'reward_dusk_per_sec: {reward_dusk_per_sec}, reward_dusk_per_epoch: {reward_dusk_per_epoch:_}')
+
+#block_reward_interval_sec = 10
+block_reward_dusk_per_sec = block_reward_dusk_typical * (1 / block_reward_interval_sec)
 
 reward_per_day_dusk = block_reward_dusk_per_sec * SEC_PER_MIN * MIN_PER_HOUR * HOUR_PER_DAY
 reward_per_week_dusk = reward_per_day_dusk * DAY_PER_WEEK
@@ -129,10 +169,16 @@ print(f'provisioners[0]: {json.dumps(provisioners[0])}')
 num_provisioners = len(provisioners)
 stake_sum_native = sum(provisioner.amount for provisioner in provisioners)
 stake_sum_dusk = native_to_dusk(stake_sum_native)
+reward_fraction_per_epoch = reward_dusk_per_epoch / stake_sum_dusk
+print(f'reward_fraction_per_epoch: {reward_fraction_per_epoch}  {100*reward_fraction_per_epoch:.4}%')
+reward_epoch_per_1_pct = 0.01 / reward_fraction_per_epoch
+reward_day_per_1_pct = reward_epoch_per_1_pct / epoch_per_day
+print(f'reward_epoch_per_1_pct: {reward_epoch_per_1_pct:.4}, reward_day_per_1_pct: {reward_day_per_1_pct:.4}')
+
 minimal_provisioner_fraction = node_normal_dusk / stake_sum_dusk
 print(f'minimal_provisioner_fraction: {minimal_provisioner_fraction}')
-minimal_provisioner_once_per = 1 / minimal_provisioner_fraction
-print(f'minimal_provisioner_once_per: {minimal_provisioner_once_per:.7}')
+once_per_minimal_provisioner = 1 / minimal_provisioner_fraction
+print(f'once_per_minimal_provisioner: {once_per_minimal_provisioner:.7}')
 print(f'minimal_provisioner_day_per_block: {1/(block_per_day*minimal_provisioner_fraction)}')
 my_fraction = my_stake_dusk / stake_sum_dusk
 print(f'num_provisioners: {num_provisioners}, stake_sum_native: {stake_sum_native:_}, , stake_sum_dusk: {stake_sum_dusk:_}, my_stake_dusk: {my_stake_dusk:_}, my_fraction: {my_fraction} {my_fraction*100:.6}%')

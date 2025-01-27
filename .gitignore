@@ -1,1 +1,4 @@
 *~
+force-rebuild-nonce
+**/build.logs/
+**/__pycache__/

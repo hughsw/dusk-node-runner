@@ -6,8 +6,10 @@
 
   podman exec -it dusk tail -f /var/log/rusk.log | grep -i -e 'block accepted' -e '\(warn\|error\)'
 
-  podman exec --user=duskadmin dusk /bin/dash -c 'export RUSK_WALLET_PWD=4eZGpeDfh4VLkyGd8Ei6 ; ruskquery block-height ; rusk-wallet --log-type=json stake-info ; rusk-wallet --log-type=json balance'
-  podman exec --user=duskadmin dusk /bin/dash -c 'export RUSK_WALLET_PWD=4eZGpeDfh4VLkyGd8Ei6 ; rusk-wallet --log-type=json stake --amt=1010'
+  podman exec --user=duskadmin dusk /bin/dash -c 'export RUSK_WALLET_PWD=* ; ruskquery block-height ; rusk-wallet --log-type=json stake-info ; rusk-wallet --log-type=json balance'
+  podman exec --user=duskadmin dusk /bin/dash -c 'export RUSK_WALLET_PWD=* ; rusk-wallet --log-type=json stake --amt=1010'
+
+  echo && date '+%Y-%m-%d-%H%M-%S' && ruskquery block-height && ruskquery peers && rusk-wallet stake-info && rusk-wallet balance
 
   podman exec --user=duskadmin dusk /bin/dash -c 'printenv | sort'
 
@@ -17,8 +19,8 @@
 
   podman run -it --rm --name rusky  -v $(pwd):/app --workdir /app localhost/dusk:latest pwd
   
-ExecStop=-  podman exec --user=duskadmin dusk /bin/dash -c 'cd ; RUSK_WALLET_PWD=* rusk-wallet unstake'
-ExecStop=   podman exec --user=duskadmin dusk sudo shutdown now
+  ExecStop=-  podman exec --user=duskadmin dusk /bin/dash -c 'cd ; RUSK_WALLET_PWD=* rusk-wallet unstake'
+  ExecStop=   podman exec --user=duskadmin dusk sudo shutdown now
 
   loginctl enable-linger hugh
 
