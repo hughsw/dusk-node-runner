@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import requests
 from functools import partial
 from math import pow
 from itertools import count
@@ -25,12 +26,15 @@ def bestn(r):
         ret_max = ret
     
 
+#provisioners = requests.post
 
 r = 0.00028661443024968964
 #r = 0.0002867
 #r = 0.00025
 #r = 0.0002
 
+# r is reward factor per epoch, it's the reward factor per block times 2160
+# reward factor per block is 16 / total stake
 for r in (
         0.0002867,
         0.00028661443024968964,

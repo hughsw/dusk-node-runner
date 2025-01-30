@@ -24,6 +24,9 @@ my_stake_dusk = 1_000
 # rusk/w3sper.js/src/network/components/blocks.js
 
 """
+ curl -i -sSL -X POST 'https://nodes.dusk.network/on/node/provisioners'
+
+
  curl -i -sSL -X POST 'https://dusk03.alley.network/on/node/provisioners'
  curl -i -sSL -X POST 'http://localhost:8080/on/node/provisioners'
  curl -i -sSL -X POST 'http://localhost:8080/on/node/info'
