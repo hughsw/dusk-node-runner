@@ -1,0 +1,251 @@
+Hello node-runers, here's an update based on my simulations of Dusk compounding tactics, and further insight into the behavior of some provisioners with large stakes.
+
+TL;DR:
+My simulations have confirmed what you veterans of Dusk provisionomics already knew:
+Topping up regularly (e.g. daily) gives a very-slightly better overall return than simply letting rewards accumulate.  In either case, at present, you need to restake the accumulated rewards and locked amounts roughly every three weeks for a healthy compounding.  It is also fairly straightforward to use a provisioner's current stake, reward, and locked dusk to compare against a threshold and decide whether it's time to restake.  This threshold-based approach is particularly useful if there have been top-ups with non-reward dusk or stake withdrawals because these kinds of transactions disrupt the timeline of a simple elapsed-time restaking trigger.
+
+As has been noted by experts, the optima for when to restake are very broad.  E.g. at present, assumuing you are not topping up, you should restake when your rewards are roughly 2% of your stake, but doing so at 1.5% or 2.5% (and being similarly far from the optimum throughout the year) will reduce your first year returns by perhaps 1%.  Such a reduction would be significant for a bond trader, but is in the noise compared to possible variations in the growth of total staked Dusk or, casting a wider net, compared to fluctuations in the fiat value of Dusk.
+
+
+Simulations and Federations:
+
+The total amount of staked Dusk shows up in the denominator of almost every Dusk growth-rate equation.  So anything that increases the total amount of staked Dusk will decrease the growth-rates.  This means that modeling of changes to the total amount of staked Dusk is important for simulations.  There are only three ways for additional Dusk to be staked: (1) Provisioners withdraw their (freshly minted) Dusk rewards and restake them; (2) Dusk tokens are migrated to coin on the mainnet chain and these Dusk are used for staking; (3) The 10% of minted Dusk that go to the "Dusk Development Fund" are disbursed and are staked by provisioners.
+
+I decided not to try any modeling the ongoing migration of Dusk tokens the to native Dusk chain.  Most interested parties have already migrated to mainnet.  And since mainnet started, the present absence of a mechanism for trading or redeaming native Dusk on exchanges or staking without running a node are clearly a barriers to migration and staking of Dusk.  I also didn't model any disbursement and staking of coin from the Dusk Development Fund.
+
+So, my initial, simple-minded simulations were based on what I thought was an obviously-likely assumption regarding the growth of staked Dusk from restaked rewards.  I assumed that provisioners would restake so as to optimize their returns.  A macro consequence of such behavior is that, in the steady state, the total staked Dusk grows at the rate at which provisioner rewards are minted.  That is, all optimizing provisioners will restake all their rewards every few weeks.  So, after some transient behavior during the inital epochs, the total stake will grow at the provisioner rewards rate of roughly 16 Dusk per block.  This grow of staked Dusk is easy to model.  But, it isn't actually happening, yet!
+
+As I noted a couple of weeks ago, a substantial fraction of staked Dusk is held by provisioners that do not appear to be restaking in an optimal way (mostly by not yet ever restaking).  This non-optimal behavior of many large stakeholders is a nice thing for the rest of us.  The fixed-rate minting of Dusk and the rewards-proportional-to-stake mechanism mean that the missed-out rewards of provisioners that don't restake are exactly the additional rewards going to optimally restaking provisioners.  Similarly, the present lack of token migration and staking is a nice thing for us!
+
+I have codified the constants of the Dusk tokenomics and the assessment of the state of all the provisioners, leading to the above observations. I expect to put up an API service and perhaps a simple website for looking at the results.
+
+Looking over the provisioners' data I had been puzzled by the non-optimal behaviors.  I have recently had some insights which I'm debating whether to include in the code.
+
+There are 100 nodes, each with a stake of 600,000, that have never claimed rewards, topped-up, or restaked.  These are the "100 Dusk network provisioners" of the genesis block.  Their stakes are nearly 50% of the total staked Dusk, and their accumulating (but not withdrawn) rewards already exceed 21M Dusk (roughly 6% of the total stake).  I have not seen this federation of nodes mentioned in the documentation, so I don't have any insight into their governance rules.  These rewards are a large  amount of Dusk to be governed by opaque-to-me rules.  My guess is that they are governed by the founders, and in that light, their non-restaking makes sense because it is as favorable to the founders-who-provision as it is to the rest of us.  I wonder whether to treat these provisioners specially in analysis and simulations.
+
+As in many mostly-efficent markets, the non-optimal behavior of some parties benefits the other parties.  And, given the very broad optima for restaking of Dusk, the behavior of this fleet will have little impact on the behavior of self-interested provisioners.  
+Whether by design or just unintended consequences of the development timeline, the less-than-you-might-expect growth of the total stake provides an amplification of the early-stage incentives mentioned in the tokenomics page, "The DUSK token emission schedule plays a vital role in incentivizing network participants, particularly in the early stages of the blockchain network....".   We early network participants should be counting our blessings regarding the extra rewards we are getting in these early stages of the Dusk blockchain.
+
+
+
+
+Assuming there is no huge influx of new Dusk to the provisioning network (a risky assumption), provisioners can expect something close to a 40% increase in their dusk this first year.
+
+Details:
+Back of the envelope estimates of returns (accumlation of rewards) are pretty good for the short term, but tend to overestimate rewards in the longer term.
+
+Assumptions:
+- Expected per-epoch reward rates (as in the expected values of a random variables) are reasonable to use for simulations.  This is simpler than stochastic (monte-carlo) modeling of the per-block generator selection and validation and ratification, etc.
+- That is, roughly 16 dusk provisioner reward per block means 34,560 dusk are awarded each epoch, spread amongst the provisioners in proportion to their fraction of the total stake.
+- We ignore the gas costs of transactions
+- So as not to fuss over fractional epoch behavior, we assume all interesting activity is restricted to the final few blocks of an epoch, and we ignore tiny losses associated with being unstaked for a few blocks.
+- This means, for the purposes of modeling, we make changes to the model state at the epoch boundary.
+- In effect, provisioners unstake and unlock, withdraw rewards, and restake right at the end of an epoch
+- So, the provisioner misses out on one epoch of rewards when they restake (the maturity).
+- We model that topping-up behavior similarly happens right at the epoch boundary.  This is just to keep things simple; in practice there is no penalty for topping up whenever (other than gas costs).
+- As discussed below, we started modeling with the steady-state assumption that, on average, the total stake grows by the same amount as the provisioner rewards.  The above summary is based on this assumption.
+- Later, we accomodated the clearly observed current departure from that assumption, by having the total stake grow more slowly (because many large stakeholders are not restaking).  Including this observed behavior increases the reward rate slightly for each provisioner that restakes (because the provisioner's stake grows more rapidly than the total stake, so their reward proportion grows).
+
+I use simulations that cycle once-per epoch and allow rewards accumulation, topping-up, and evaluating and setting various thresholds for when to restake.  These simulations also include some accomodation of the observed behavior of many existing provisioners and its deviation from what would appear to be optimal (they aren't restaking).
+
+The optima for when to restake are very broad, e.g. at present, if you are not topping up, you should restake when your rewards are roughly 2% of your stake, but doing so at 1.5% or 2.5% (and being similarly far from the optimum throughout the year) will reduce the first year returns by about 1%.
+
+The biggest uncontrollable for the simuations is the changing value of the total amount being staked.  
+The simulation were first run assuming that all provisioners are behaving "rationally".  There are both micro and macro aspects to what rationally means.
+The most obvious macro assumption for me is that the collection of provisioners will achieve a restaking steady-state in which, on average, the amount that gets added to the total stake (each epoch) is the same as the rewards being minted by provisioners (during the epoch).  If such a steady state does not emerge, then the unclaimed rewards and locked amounts are growing, meaning those provisioners are not getting as much reward as they could (and the rest of us are getting more than we expected).
+
+We haven't really had enough epochs for such a steady state to be reached.  But what is surprising is the degree to which only a fraction of the accumulated rewards have been restaked.  At present the large amount of unredeemed rewards means that the total stake is lower than you would expect at this point so the rest of us are getting a 1.5+% boost on our present rewards rate.  In an efficient bond market, this would be huge!
+
+It is interesting to speculate about how the present situation could be rational.  The 20 or so largest stakeholders are, by-and-large, restaking, though inconsistently.  It's not unreasonable to assume that these large stake holders are "founders".  The "fleet" of stake-is-600000-dusk stakers is not restaking.  Speculating: Perhaps that fleet is controlled by the founders, and they in particular wish to benefit from that 1.5+% boost for as long as the operational rules for the fleet allow the fleet to run without claiming rewards.
+
+Another plausible explanation is that the fleet is awaiting deployment of the on-chain contracts that will make them behave optimally.
+
+
+Bigger bias against restaking too soon rather than too late.
+
+
+The biggest surprise has been the
+
+For compounding, it doesn't matter much whether you regularly withdraw your rewards and "top-up" your stake, or just wait while your rewards accumulate, but there is a slight benefit to topping-up regularly.  "Slight benefit" means less than 1% better APR after the first year with regular topping up for a one-year return of roughly 40%.
+In either case, occasional restaking is important for increasing your overall rewards, as measured say after one year or four years.  Early on (first year of Dusk), "occasional" means restaking with accumulated rewards and locked amounts every 50 to 100 epochs or so.
+
+ (such as myself, "discovering" Dusk just three weeks before mainnet went live)
+
+
+
+[
+    {
+      "provisioner_key_dotted": "24nhB...fkPks",
+      "provisioner_key_full": "24nhBwmRaLn6rxbnKkdpYRsEVhDKVATcU95CoTftXjKuoLH4cjQEa164LmwUkTbMHvdivkK3Cz3rQwGHzC5XMSnZBQBCkUbNQLjB2fAbLne5BnkAoGwybQQ9htK9z75fkPks",
+      "owner_key_dotted": "24nhB...fkPks",
+      "owner_key_full": "24nhBwmRaLn6rxbnKkdpYRsEVhDKVATcU95CoTftXjKuoLH4cjQEa164LmwUkTbMHvdivkK3Cz3rQwGHzC5XMSnZBQBCkUbNQLjB2fAbLne5BnkAoGwybQQ9htK9z75fkPks",
+      "maturity_block": 244080,
+      "maturity_epoch": 113,
+      "staking_epoch_count": 5,
+      "active_stake_dusk": 99866.895882679,
+      "pending_stake_dusk": 0,
+      "stake_dusk": 99866.895882679,
+      "reward_dusk": 15.994515055,
+      "locked_dusk": 12.147295669,
+      "provisioner_dusk": 99895.037693403,
+      "reward_fraction": 0.00016,
+      "locked_fraction": 0.000122,
+      "ad_hoc_effective_reward_fraction": 0.001377,
+      "ad_hoc_restaking_guidance": "wait"
+    },
+
+    {
+      "provisioner_key_dotted": "sb6jZ...9zQUn",
+      "provisioner_key_full": "sb6jZ4gLaKAaBN4wQ7W4oX7BQvgE46H4H3iZeBPGhVYxLH1n72UAwzt2uXZKfntEBG2opnxPMvPoCim1G2DNc3Dnd6265BfgMQGJmouQxgzqE8QiFAZmYf3otJ2Pkv9zQUn",
+      "owner_key_dotted": "sb6jZ...9zQUn",
+      "owner_key_full": "sb6jZ4gLaKAaBN4wQ7W4oX7BQvgE46H4H3iZeBPGhVYxLH1n72UAwzt2uXZKfntEBG2opnxPMvPoCim1G2DNc3Dnd6265BfgMQGJmouQxgzqE8QiFAZmYf3otJ2Pkv9zQUn",
+      "maturity_block": 4320,
+      "maturity_epoch": 2,
+      "staking_epoch_count": 116,
+      "active_stake_dusk": 6450,
+      "pending_stake_dusk": 0,
+      "stake_dusk": 6450,
+      "reward_dusk": 45.812401182,
+      "locked_dusk": 500,
+      "provisioner_dusk": 6995.812401182,
+      "reward_fraction": 0.007103,
+      "locked_fraction": 0.077519,
+      "ad_hoc_effective_reward_fraction": 0.782296,
+      "ad_hoc_restaking_guidance": "restake, meh"
+    },
+
+    {
+      "provisioner_key_dotted": "tufXc...dUKfq",
+      "provisioner_key_full": "tufXcEBhQaNafTWfa1sfgr1WCz3HQ2YiwEsQym53e1J9XZTwroPHbwJAhpZr8SBJ3ba91BfBKpdrJmYKVEkGYYwS2NRVzzxD6VHawVxdxdtM3CWDdALs923rthFYMqdUKfq",
+      "owner_key_dotted": "tufXc...dUKfq",
+      "owner_key_full": "tufXcEBhQaNafTWfa1sfgr1WCz3HQ2YiwEsQym53e1J9XZTwroPHbwJAhpZr8SBJ3ba91BfBKpdrJmYKVEkGYYwS2NRVzzxD6VHawVxdxdtM3CWDdALs923rthFYMqdUKfq",
+      "maturity_block": 168480,
+      "maturity_epoch": 78,
+      "staking_epoch_count": 40,
+      "active_stake_dusk": 1100,
+      "pending_stake_dusk": 0,
+      "stake_dusk": 1100,
+      "reward_dusk": 28.948365882,
+      "locked_dusk": 0,
+      "provisioner_dusk": 1128.948365882,
+      "reward_fraction": 0.026317,
+      "locked_fraction": 0,
+      "ad_hoc_effective_reward_fraction": 0.026317,
+      "ad_hoc_restaking_guidance": "wait"
+    },
+    {
+      "provisioner_key_dotted": "rbFyS...X3ZeW",
+      "provisioner_key_full": "rbFySdaYXMEky9FHXMRk8cATgodW6gFi1xtGimLDXPaqc6MRL9tSXe5CDQ8u6ZF9PJAZwQxsMxFWsezy7W9fAyzwq7fY9WNhnpZEG1S1Q4RFe9VRbaomuXQf271RK8X3ZeW",
+      "owner_key_dotted": "rbFyS...X3ZeW",
+      "owner_key_full": "rbFySdaYXMEky9FHXMRk8cATgodW6gFi1xtGimLDXPaqc6MRL9tSXe5CDQ8u6ZF9PJAZwQxsMxFWsezy7W9fAyzwq7fY9WNhnpZEG1S1Q4RFe9VRbaomuXQf271RK8X3ZeW",
+      "maturity_block": 105840,
+      "maturity_epoch": 49,
+      "staking_epoch_count": 69,
+      "active_stake_dusk": 9990,
+      "pending_stake_dusk": 0,
+      "stake_dusk": 9990,
+      "reward_dusk": 202.396479939,
+      "locked_dusk": 0,
+      "provisioner_dusk": 10192.396479939,
+      "reward_fraction": 0.02026,
+      "locked_fraction": 0,
+      "ad_hoc_effective_reward_fraction": 0.02026,
+      "ad_hoc_restaking_guidance": "restake"
+    },
+    {
+      "provisioner_key_dotted": "nsHLm...mwfyU",
+      "provisioner_key_full": "nsHLm1bkMsPcXzsE54D1sF1nFphVDgiBg2kXwZJyy8bqGAhvBU1a5qdmDPjpvx8y3hftZwVunoQff2Qcxb1RTYY8RnqLJvW1JHWEVFDuXwHGkiMR6iAoqLjjhg8C6fmwfyU",
+      "owner_key_dotted": "nsHLm...mwfyU",
+      "owner_key_full": "nsHLm1bkMsPcXzsE54D1sF1nFphVDgiBg2kXwZJyy8bqGAhvBU1a5qdmDPjpvx8y3hftZwVunoQff2Qcxb1RTYY8RnqLJvW1JHWEVFDuXwHGkiMR6iAoqLjjhg8C6fmwfyU",
+      "maturity_block": 0,
+      "maturity_epoch": 0,
+      "staking_epoch_count": 118,
+      "active_stake_dusk": 1190,
+      "pending_stake_dusk": 0,
+      "stake_dusk": 1190,
+      "reward_dusk": 31.246658943,
+      "locked_dusk": 0,
+      "provisioner_dusk": 1221.246658943,
+      "reward_fraction": 0.026258,
+      "locked_fraction": 0,
+      "ad_hoc_effective_reward_fraction": 0.026258,
+      "ad_hoc_restaking_guidance": "restake, overdue"
+    },
+    {
+      "provisioner_key_dotted": "spvvU...736HD",
+      "provisioner_key_full": "spvvUi61d4zud15mzd45eJojWEF1y4SCiVQ4K3xpuSLWW4tQEDySVmUbnXD7eJDsZgaCvciLKisvd39MNCUYJS2fSwnkWwybYXuHyQ9azvwwdzGiVDNZj9FkacVtjk736HD",
+      "owner_key_dotted": "spvvU...736HD",
+      "owner_key_full": "spvvUi61d4zud15mzd45eJojWEF1y4SCiVQ4K3xpuSLWW4tQEDySVmUbnXD7eJDsZgaCvciLKisvd39MNCUYJS2fSwnkWwybYXuHyQ9azvwwdzGiVDNZj9FkacVtjk736HD",
+      "maturity_block": 49680,
+      "maturity_epoch": 23,
+      "staking_epoch_count": 95,
+      "active_stake_dusk": 1130,
+      "pending_stake_dusk": 0,
+      "stake_dusk": 1130,
+      "reward_dusk": 2.544230492,
+      "locked_dusk": 0,
+      "provisioner_dusk": 1132.544230492,
+      "reward_fraction": 0.002252,
+      "locked_fraction": 0,
+      "ad_hoc_effective_reward_fraction": 0.002252,
+      "ad_hoc_restaking_guidance": "meh"
+    },
+
+  {
+    "provisioner_key_dotted": "sjoY8...aq96P",
+    "provisioner_key_full": "sjoY8xpEMBkSjekbf1pGrYr5uAWcSy8kEZerTgAXjY5j3HEV2MaW3mMQAUEkvbdPYXNR3Gwh9J8H6C7nBEyPztPR7u1rFNREPqVX71oHc7Tva66Dg4ch5r8hbUAeU2aq96P",
+    "owner_key_dotted": "sjoY8...aq96P",
+    "owner_key_full": "sjoY8xpEMBkSjekbf1pGrYr5uAWcSy8kEZerTgAXjY5j3HEV2MaW3mMQAUEkvbdPYXNR3Gwh9J8H6C7nBEyPztPR7u1rFNREPqVX71oHc7Tva66Dg4ch5r8hbUAeU2aq96P",
+    "maturity_block": 226800,
+    "maturity_epoch": 105,
+    "staking_epoch_count": 12,
+    "active_stake_dusk": 2889.432,
+    "pending_stake_dusk": 0,
+    "stake_dusk": 2889.432,
+    "reward_dusk": 232.637691907,
+    "locked_dusk": 6665.568,
+    "provisioner_dusk": 9787.637691907,
+    "reward_fraction": 0.080513,
+    "locked_fraction": 2.306878,
+    "ad_hoc_effective_reward_fraction": 23.149296,
+    "ad_hoc_restaking_guidance": "wait"
+  },
+  {
+    "provisioner_key_dotted": "263iu...rbroi",
+    "provisioner_key_full": "263iutoFfU2Hc3nRN3K3Jic5hBTL6dgPTzsavWfGRmgVzKp9g2uAmPmBnHPgej2i55Xrg5McFFW2Tp4EAJ51ukLTmUwRri4SE4ESKEkqPiEqV9xt1YUpKdFJ5TbU7a1rbroi",
+    "owner_key_dotted": "263iu...rbroi",
+    "owner_key_full": "263iutoFfU2Hc3nRN3K3Jic5hBTL6dgPTzsavWfGRmgVzKp9g2uAmPmBnHPgej2i55Xrg5McFFW2Tp4EAJ51ukLTmUwRri4SE4ESKEkqPiEqV9xt1YUpKdFJ5TbU7a1rbroi",
+    "maturity_block": 0,
+    "maturity_epoch": 0,
+    "staking_epoch_count": 117,
+    "active_stake_dusk": 2950,
+    "pending_stake_dusk": 0,
+    "stake_dusk": 2950,
+    "reward_dusk": 91.672104859,
+    "locked_dusk": 0,
+    "provisioner_dusk": 3041.672104859,
+    "reward_fraction": 0.031075,
+    "locked_fraction": 0,
+    "ad_hoc_effective_reward_fraction": 0.031075,
+    "ad_hoc_restaking_guidance": "restake, overdue"
+  },
+  {
+    "provisioner_key_dotted": "nXXJN...mpAfV",
+    "provisioner_key_full": "nXXJNC4e7u92anSCNyPoj3mp9ddmDNHJz7bTdYMeuMTTNhpQyByt9ezrDjWvxvoX3RxrrGkLTET2iBHnbqvx4d4huyynAy2UNvhzXm4PvKR4GQjdCRwXetmJhLWAz2mpAfV",
+    "owner_key_dotted": "nXXJN...mpAfV",
+    "owner_key_full": "nXXJNC4e7u92anSCNyPoj3mp9ddmDNHJz7bTdYMeuMTTNhpQyByt9ezrDjWvxvoX3RxrrGkLTET2iBHnbqvx4d4huyynAy2UNvhzXm4PvKR4GQjdCRwXetmJhLWAz2mpAfV",
+    "maturity_block": 0,
+    "maturity_epoch": 0,
+    "staking_epoch_count": 117,
+    "active_stake_dusk": 2950,
+    "pending_stake_dusk": 0,
+    "stake_dusk": 2950,
+    "reward_dusk": 2.776974806,
+    "locked_dusk": 0,
+    "provisioner_dusk": 2952.776974806,
+    "reward_fraction": 0.000941,
+    "locked_fraction": 0,
+    "ad_hoc_effective_reward_fraction": 0.000941,
+    "ad_hoc_restaking_guidance": "meh"
+  }
+]
