@@ -1,3 +1,30 @@
+I can't figure out if we agree or not! :wink:
+
+One theoretical and observed invariant is that for optimal returns the interval between restakings will slowly grow over the months and years that Dusk is doing its thing.    What is also clear, theoretically and from observations, is that the optima are very broad, so that using a single, reasonable, fixed restaking interval will serve you just fine.  I believe we are more-or-less in agreement about the preceding, even if our approaches and wording are diffeent.
+
+Yet, somehow we appear to have a 10% difference in our estimates of long-term yields.  Perhaps this discrepancy come from differences in our assumptions about variability in the system.
+
+In my simulations ther are the constants of the Dusk tokenomics.  There are also a few variables, e.g.:
+- How much of the the 1 to 2 epoch non-reward interval that follows the staking transaction should the node simulation use?
+- There is the "extra 10% depending on the credits included in the certificate" for the generator's Dusk emission reward.  What fraction should the node simulation use?
+- There's the observation that the "fleet" of nodes with 60,000,000 staked Dusk do not withdraw their rewards, and so do not contribute to growth of the total staked Dusk.  Should this behavior be extrapolated into the future?
+
+My simulations sweep across these variables, so I have many scenarios for post mortem.  Some of those variables have only a small impact.  The ones regarding growth of the total Dusk stake have a larger impact.
+
+I do see 50% APY for the first year for the **most optimistics** values of these variables.  But first year APY in the low 40s is more typical.  And mid to high 30s are more typical when run out to 3 or 4 years.  
+
+If the simulations restake at the optimum epovh (rather than on a fixed schedule) there is about a 1% improvement in long-term APY.  So, such optimization is not the explanation of the 10% discrepancy.
+
+
+- There are occasional injections of (newly bridged) Dusk to new provisioner nodes.  These contribute to growth of the total staked Dusk.  Is there a reasonable extrapolation model to use?
+ for which no assumptions or sweeps are necessary
+This means that any reasonable fixed restaking interval (every 3 weeks, every 3/4 of a month, every month) will be **the** optimal interval at some point during those months and years.
+, within a broad set of modeling conditions about the numerous uncontrollables in the system,
+   I backed into all this by doing simulations to optimize the decision about when to restake.
+
+
+
+
 [ trying to construct a complete post by editing ] 
 
 Hello node-runners, a
