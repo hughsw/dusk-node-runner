@@ -117,7 +117,7 @@ async def run_dusk_provisioning(dusk_node_scheme_host_port):
             # TODO: fix me
             epoch_of_period = provisioning.dusk_chain_epoch_index
             block_of_epoch = provisioning.dusk_chain_block_index % provisionomics.block_per_epoch
-            filename = f'dusk-provisioning_{provisioning.dusk_chain_block_index:07}_epoch-{epoch_of_period:04}_eplock-{block_of_epoch:04}_{provisioning.timestamp_tag}.json'
+            filename = f'dusk-provisioning_block-{provisioning.dusk_chain_block_index:07}_epoch-{epoch_of_period:04}_eplock-{block_of_epoch:04}_{provisioning.timestamp_tag}.json'
             await printio(f'filename: {filename}')
             with open(filename, 'wt') as out_file:
                 print(json.dumps(provisioning), file=out_file)
