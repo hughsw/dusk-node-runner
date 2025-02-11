@@ -57,6 +57,8 @@ class Provisioners(namedtuple('Provisioners', (
         #'total_inactive_dusk',
         'total_provisioner_dusk', 
 
+        'total_non_compounding_stake_dusk',
+
         #'total_pending_stake_reward_fraction',
         'total_reward_fraction',
         'total_locked_fraction',
@@ -164,6 +166,9 @@ class Provisioner(namedtuple('Provisioner', 'timestamp_sec, amount, eligibility,
         #total_provisioner_dusk = total_active_stake_dusk + total_inactive_dusk
         total_provisioner_dusk = total_stake_dusk + total_reward_dusk + total_locked_dusk
 
+        total_non_compounding_stake_dusk = sum(provisioner.active_stake_dusk for provisioner in provisioners if provisioner.maturity_block == 0 and provisioner.active_stake_dusk > 0 and provisioner.reward_dusk / provisioner.active_stake_dusk > 0.03)
+
+
         provisioner_active_count = sum(provisioner.active_stake_dusk > 0 for provisioner in provisioners)
         provisioner_pending_count = sum(provisioner.pending_stake_dusk > 0 for provisioner in provisioners)
         provisioner_inactive_count = sum(provisioner.active_stake_dusk == provisioner.pending_stake_dusk == 0 for provisioner in provisioners)
@@ -251,6 +256,7 @@ class Provisioner(namedtuple('Provisioner', 'timestamp_sec, amount, eligibility,
             total_locked_dusk = round(total_locked_dusk, 9),
             #total_inactive_dusk = round(total_inactive_dusk, 9),
             total_provisioner_dusk = round(total_provisioner_dusk, 9),
+            total_non_compounding_stake_dusk = round(total_non_compounding_stake_dusk, 9),
 
             #total_pending_stake_reward_fraction = round(total_pending_stake_reward_fraction, 6),
             total_reward_fraction = round(total_reward_fraction, 6),
