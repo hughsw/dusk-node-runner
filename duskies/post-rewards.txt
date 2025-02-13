@@ -1,0 +1,36 @@
+Counts of Dusk rewards to provisioners for 8,268 blocks taken from the range of blocks from 313,400 to 321,893.  These values are derived from provisioner records from Wednesday, 2025-02-12 18:51:09 UTC to Thursday, 2025-02-13 18:26:50 UTC, just under one day.
+
+This analysis skips 19 blocks with withdrawal transactions and (of course) the few blocks which are missing from my record.  This analysis also skips the rewards going to the Dusk Development Fund.  These rewards are extremely close to the 10% of Dusk emissions, as per [Tokenomics page](https://docs.dusk.network/learn/tokenomics/).
+
+Rewards range from 15.2 to 17.8 Dusk.
+
+At this time, 15.4 is the average reward to provisioners on each block.  15.2 is the median (typical) reward for a block.  It is awarded 78.5% of the time.
+
+Reward   Number of times awarded
+ 15.2     6488
+ 15.3     563
+ 15.4     362
+ 15.5     53
+ 15.6     37
+ 15.7     12
+ 15.8     1
+ 15.9     1
+ 16.0     0
+ 16.1     0
+ 16.2     0
+ 16.3     0
+ 16.4     0
+ 16.5     0
+ 16.6     0
+ 16.7     0
+ 16.8     0
+ 16.9     0
+ 17.0     0
+ 17.1     0
+ 17.2     660
+ 17.3     54
+ 17.4     26
+ 17.5     9
+ 17.6     1
+ 17.7     0
+ 17.8     1
