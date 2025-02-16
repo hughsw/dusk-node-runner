@@ -9,7 +9,7 @@
 # Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 import sys
-import asyncio 
+import asyncio
 import datetime
 import json
 import requests
@@ -56,9 +56,9 @@ async def get_node_info(dusk_node_scheme_host_port):
 
 async def dusk_provisioning(dusk_node_scheme_host_port):
     calls = (
-        get_node_info(dusk_node_scheme_host_port), 
+        get_node_info(dusk_node_scheme_host_port),
         get_dusk_chain_block_index(dusk_node_scheme_host_port),
-        get_dusk_provisioners(dusk_node_scheme_host_port), 
+        get_dusk_provisioners(dusk_node_scheme_host_port),
     )
 
     #provisioning_thunk = functools.partial(asyncio.gather, *calls, return_exceptions=True)
@@ -106,21 +106,24 @@ async def dusk_provisioning(dusk_node_scheme_host_port):
     return provisioning
 
 
+async def do_dusk_provisioning(dusk_node_scheme_host_port):
+    provisioning = await dusk_provisioning(dusk_node_scheme_host_port)
+    #await printio(f'{json.dumps(foon)}')
+    period = provisioning.dusk_chain_period_index
+    # TODO: fix me
+    epoch_of_period = provisioning.dusk_chain_epoch_index
+    block_of_epoch = provisioning.dusk_chain_block_index % provisionomics.block_per_epoch
+    filename = f'dusk-provisioning_block-{provisioning.dusk_chain_block_index:07}_epoch-{epoch_of_period:04}_eplock-{block_of_epoch:04}_{provisioning.timestamp_tag}.json'
+    await printio(f'filename: {filename}')
+    with open(filename, 'wt') as out_file:
+        print(json.dumps(provisioning), file=out_file)
+
 async def run_dusk_provisioning(dusk_node_scheme_host_port):
     block_per_interval = provisionomics.block_per_epoch // 3
 
     while True:
         try:
-            provisioning = await dusk_provisioning(dusk_node_scheme_host_port)
-            #await printio(f'{json.dumps(foon)}')
-            period = provisioning.dusk_chain_period_index
-            # TODO: fix me
-            epoch_of_period = provisioning.dusk_chain_epoch_index
-            block_of_epoch = provisioning.dusk_chain_block_index % provisionomics.block_per_epoch
-            filename = f'dusk-provisioning_block-{provisioning.dusk_chain_block_index:07}_epoch-{epoch_of_period:04}_eplock-{block_of_epoch:04}_{provisioning.timestamp_tag}.json'
-            await printio(f'filename: {filename}')
-            with open(filename, 'wt') as out_file:
-                print(json.dumps(provisioning), file=out_file)
+            do_dusk_provisioning(dusk_node_scheme_host_port)
 
             some_index = provisioning.dusk_chain_block_index // block_per_interval
             block_next = (some_index + 1) * block_per_interval

@@ -5,7 +5,7 @@
 #    name: caddy_net
 #    driver: bridge
 ##    enable_ipv6: true
-    
+
 services:
 
   # Caddy acts as our external-facing webserver and handles
@@ -21,10 +21,10 @@ services:
       - 443:443
       - 443:443/udp
     volumes:
-      - ..:/srv:z
+      - .:/srv:z
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./data:/data
-      - ./config:/config
+      - ./caddy_data:/data
+      - ./caddy_config:/config
 
   duskies-api:
     image: localhost/duskies-api:latest
@@ -32,9 +32,13 @@ services:
     restart: unless-stopped
     expose:
       - "8000"
+    environment:
+      DUSKIES_PROVISIONING_DIR: /app/api-data/provisioning-records
+
     volumes:
+      - ./duskies-api-data:/app/api-data:Z
       # volume only needed for cauvicorn --reload during dev
-      - ../dusk05.alley.network/src/api:/app/api:z
+      - ./dusk05.alley.network/src/api:/app/api:z
 
 ##    networks:
 ##      - caddy_net
@@ -48,7 +52,7 @@ services:
     expose:
       - "5173"
     volumes:
-      - ../dusk05.alley.network/public/src:/app/client/my-app/src:z
+      - ./dusk05.alley.network/public/src:/app/client/my-app/src:z
 
 #    networks:
 #      - caddy_net

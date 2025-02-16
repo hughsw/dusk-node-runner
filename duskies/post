@@ -1,0 +1,11 @@
+Here is an example of the deltas I see in block-to-block values.  This is an **alpha** result:
+```{
+  "dusk_provisioning_delta_summary": {
+    "timestamp_sec": 10,
+    "dusk_chain_block_index": 1,
+    "dusk_chain_epochblock_index": 1,
+    "dusk_development_fund_reward_dusk": 1.98574,
+    "dusk_provisioners_reward_dusk": 15.234348998
+  }
+}```
+This is typical of what I'm seeing.  I'm puzzled because the provisioner rewards per block is smaller than I was expecting given the tokenomics...

@@ -4,19 +4,12 @@
     email hsw+duskies@20octaves.com
 }
 
-dusk05.alley.network {
+duskies.network {
     handle_path /api/* {
       reverse_proxy duskies-api:8000
     }
 
    reverse_proxy  duskies-client:5173
-
-#   reverse_proxy  duskies-client:8001
-
-    #    reverse_proxy * duskies-client:8001
-
-    #reverse_proxy duskies-api:8000 
-    #    reverse_proxy duskies:8000
 
 #        root * /srv/dusk05.alley.network
 #        templates

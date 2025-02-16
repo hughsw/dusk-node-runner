@@ -21,8 +21,6 @@ RUN set -x \
   && systemctl mask systemd-timesyncd.service systemd-resolved.service \
   && true
 
-#COPY autologin.conf /etc/systemd/system/console-getty.service.d/
-
 # Start the systemd Init service by default
 CMD ["/sbin/init"]
 
