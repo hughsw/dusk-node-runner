@@ -1,0 +1,64 @@
+Steps for computing figuring the distribution of dusk rewards.
+- initialize a histogram to count intra-block reward differences
+  - scale the bin widths for human-readable results
+- on each notification of a blocks/accepted event
+- get the list of provisioners from the `/on/node/provisioners` API
+- filter list to remove the entry for the Dusk Development Fund node
+- sum the .reward entries and save that sum as `dusk_provisioners_reward_lux`
+- similarly sum various other entries from the provisioners
+- subtract the immediately previous block's  `dusk_provisioners_reward_lux`
+- if the difference is positive, incrment the histogram bin for that difference
+  - at present I've only observed a few dozen distict difference values
+- repeat for thousands of blocks
+
+Code snippets:
+```
+def get_dusk_provisioners(dusk_node_scheme_host_port):
+    provisioners_uri = f'{dusk_node_scheme_host_port}/on/node/provisioners'
+    provisioners_result = requests.post(provisioners_uri)
+
+    return provisioners_result.json()
+
+provisioners_all = get_dusk_provisioners(dusk_node_scheme_host_port)
+
+distinguished_keys = set((provisionomics.dusk_development_fund_address,))
+
+# remove distinguished provisioners from list we work with
+provisioners = tuple(provisioner for provisioner in provisioners_all if provisioner.key not in distinguished_keys)
+
+dusk_provisioners_reward_lux = sum(provisioner.reward for provisioner in provisioners)
+
+```
+
+Provisioner shape example:
+```
+{
+  "amount": 8134000000000,
+  "eligibility": 302400,
+  "faults": 0,
+  "hard_faults": 0,
+  "key": "21zd7AXUG3ZDCVewD47MrXiqnVt2DrQqZ1dW3DGqvLEHsafJaMtPg9SoQD9NUmAMgrih5kYsbweCfXA1THxU5kXWUfKnggQpWJHcwsLZVCm6ziJ1DbnXdAqEfE4kxonsH7AA",
+  "locked_amt": 0,
+  "owner": {
+    "Account": "21zd7AXUG3ZDCVewD47MrXiqnVt2DrQqZ1dW3DGqvLEHsafJaMtPg9SoQD9NUmAMgrih5kYsbweCfXA1THxU5kXWUfKnggQpWJHcwsLZVCm6ziJ1DbnXdAqEfE4kxonsH7AA"
+  },
+  "reward": 28824277566
+}
+```
+
+Results with reward differnce between sequential blocks
+```
+{
+  "dusk_provisioning_delta_summary": {
+    "dusk_chain_block_interval_end_index": 348410,
+    "dusk_chain_block_interval_start_index": 348409,
+    "timestamp_delta_sec": 10,
+    "dusk_chain_block_delta_index": 1,
+    "dusk_chain_epochblock_delta_index": 1,
+    "dusk_development_fund_reward_delta_lux": 1985740000,
+    "dusk_development_fund_reward_delta_dusk": 1.98574,
+    "dusk_provisioners_reward_delta_lux": 15234348998,
+    "dusk_provisioners_reward_delta_dusk": 15.234348998
+  }
+}
+```
