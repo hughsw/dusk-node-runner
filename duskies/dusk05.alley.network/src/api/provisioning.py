@@ -244,34 +244,56 @@ async def dusk_provisioning(dusk_node_scheme_host_port, *, trigger_height=None, 
     return provisioning
 
 
-@asyncify
-def json_dump(obj, filename):
+#@asyncify
+def json_dump(obj, basename_abs):
+#def json_dump(obj, filename):
+    filename = basename_abs + '.json'
     print(f'json_dump: start: filename: {filename}, type(obj): {type(obj)}', flush=True)
     with open(filename, 'wt') as out_file:
         print(json.dumps(obj), file=out_file)
     #print(f'json_dump: done', flush=True)
 
-@asyncify
-def pickle_dump(obj, filename):
-    filename = filename.replace('.json', '.pkl')
+#@asyncify
+def pickle_dump(obj, basename_abs):
+#def pickle_dump(obj, filename):
+    #filename = filename.replace('.json', '.pkl')
+    filename = basename_abs + '.pkl'
     print(f'pickle_dump: start: filename: {filename}, type(obj): {type(obj)}', flush=True)
     with open(filename, 'wb') as out_file:
         pickle.dump(obj, out_file)
     #print(f'json_dump: done', flush=True)
 
-async def do_dusk_provisioning(dusk_node_scheme_host_port, provisioning_dir_abs, *, trigger_height=None, block_hash=None):
-    provisioning = await dusk_provisioning(dusk_node_scheme_host_port, trigger_height=trigger_height, block_hash=block_hash)
+@asyncify
+def do_persist(provisioning, provisioning_dir_abs):
+    summary = provisioning.dusk_provisioning_summary
     #await printio(f'{json.dumps(foon)}')
     #period = provisioning.dusk_chain_period_index
     # TODO: fix me
     #epoch_of_period = provisioning.dusk_chain_epoch_index
-    summary = provisioning.dusk_provisioning_summary
-    filename = f'dusk-provisioning_block-{summary.dusk_chain_block_index:07}_epoch-{summary.dusk_chain_epoch_index:04}_epochblock-{summary.dusk_chain_epochblock_index:04}_{summary.timestamp_tag}.json'
-    filename_abs = os.path.join(provisioning_dir_abs, filename)
+    epoch_name = f'epoch-{summary.dusk_chain_epoch_index:04}'
+    epoch_dir_abs = os.path.join(provisioning_dir_abs, epoch_name)
+    os.makedirs(epoch_dir_abs, exist_ok=True)
+
+    basename = f'dusk-provisioning_block-{summary.dusk_chain_block_index:07}_{epoch_name}_epochblock-{summary.dusk_chain_epochblock_index:04}_{summary.timestamp_tag}'
+    basename_abs = os.path.join(epoch_dir_abs, basename)
+    #basename_abs = os.path.join(provisioning_dir_abs, basename)
+
+    filename = f'dusk-provisioning_block-{summary.dusk_chain_block_index:07}_{epoch_name}_epochblock-{summary.dusk_chain_epochblock_index:04}_{summary.timestamp_tag}.json'
+    filename_abs = os.path.join(epoch_dir_abs, filename)
+    #filename_abs = os.path.join(provisioning_dir_abs, filename)
     #await printio(f'filename_abs: {filename_abs}')
 
-    await json_dump(provisioning, filename_abs)
-    await pickle_dump(provisioning, filename_abs)
+    #json_dump(provisioning, basename_abs)
+    # JSON round trip to make generic rather than attrdict
+    pickle_dump(json.loads(json.dumps(provisioning)), basename_abs)
+    #pickle_dump(provisioning, basename_abs)
+    #json_dump(provisioning, filename_abs)
+    #pickle_dump(provisioning, filename_abs)
+
+async def do_dusk_provisioning(dusk_node_scheme_host_port, provisioning_dir_abs, *, trigger_height=None, block_hash=None):
+    provisioning = await dusk_provisioning(dusk_node_scheme_host_port, trigger_height=trigger_height, block_hash=block_hash)
+
+    await do_persist(provisioning, provisioning_dir_abs)
 
     return provisioning
 
