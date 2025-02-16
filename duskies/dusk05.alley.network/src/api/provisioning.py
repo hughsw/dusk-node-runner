@@ -168,6 +168,7 @@ def make_provisioning_summary(now_utc_sec, node_info, dusk_chain_block_index, tr
 
         dusk_chain_epoch_index = dusk_chain_epoch_index,
         dusk_chain_epochblock_index = dusk_chain_epochblock_index,
+        dusk_chain_epochblock_percent = f'{dusk_chain_epochblock_index/provisionomics.block_per_epoch*100:.2f}%',
         #dusk_chain_epoch_fraction = round(dusk_chain_epoch_fraction, 4),
         #dusk_chain_epoch_fraction_hr = f'{dusk_chain_epoch_fraction*100:.2f}%',
 
