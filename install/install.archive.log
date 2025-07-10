@@ -1,0 +1,145 @@
+hugh@dusk02:~/bc/dusk-node-runner/install$ ./install.sh mainnet archive
+DIR: /home/hugh/bc/dusk-node-runner/install
+SCRIPT: install.sh
+ARGS: mainnet archive
+timestamp: 2025-01-08-2108-15
+Detected current user: hugh
+Home directory: /home/hugh
+Selected network: mainnet
+Detected supported distro: ubuntu (x64)
+Stopping previous services
+Rusk service not running.
+Checking prerequisites
+Updating package database...
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Hit:1 http://security.ubuntu.com/ubuntu noble-security InRelease
+Hit:2 http://mirrors.digitalocean.com/ubuntu noble InRelease
+Hit:3 http://mirrors.digitalocean.com/ubuntu noble-updates InRelease
+Hit:4 http://mirrors.digitalocean.com/ubuntu noble-backports InRelease
+Hit:5 https://repos-droplet.digitalocean.com/apt/droplet-agent main InRelease
+Hit:6 https://ppa.launchpadcontent.net/fish-shell/release-3/ubuntu noble InRelease
+Reading package lists...
+Building dependency tree...
+Reading state information...
+6 packages can be upgraded. Run 'apt list --upgradable' to see them.
+unzip is already installed.
+curl is already installed.
+route is already installed.
+jq is already installed.
+logrotate is already installed.
+dig is already installed.
+User 'dusk' and group 'dusk' already exist.
+Adding current user to dusk group for access.
+Downloading installer package for additional scripts and configurations
+Installing rusk version 1.0.0 for mainnet (x64-archive)
+Downloading from https://github.com/dusk-network/rusk/releases/download/rusk-1.0.0/rusk-1.0.0-linux-x64-archive.tar.gz
+Installing rusk-wallet version 0.1.0-rc.0 for mainnet (x64)
+Downloading from https://github.com/dusk-network/rusk/releases/download/rusk-wallet-0.1.0-rc.0/rusk-wallet-0.1.0-linux-x64.tar.gz
+Downloading verifier keys
+Selected network: mainnet
+Archive:  /opt/dusk/installer/rusk-vd-keys.zip
+   creating: /opt/dusk/rusk/keys/
+  inflating: /opt/dusk/rusk/keys/98c9786a8cf36f19bcbdf97f4bc140fe402ae5f72cef3f60f24b96071c0faa73.vd
+  inflating: /opt/dusk/rusk/keys/1210b96327d25a0403be7b8e027cfe964370700b94ec7f47d22128ecbe7e9803.vd
+  inflating: /opt/dusk/rusk/keys/0095785bd378e5cd3c7427c03b6d4420966c03156bf045b556f22419252fc8bc.vd
+  inflating: /opt/dusk/rusk/keys/c8fed2bfcc0e0e64709586b56636fc1831be5f0227e533363e9a49b8fae5cd2f.vd
+   creating: /opt/dusk/rusk/circuits/
+  inflating: /opt/dusk/rusk/circuits/0095785bd378e5cd3c7427c03b6d4420966c03156bf045b556f22419252fc8bc.toml
+  inflating: /opt/dusk/rusk/circuits/c8fed2bfcc0e0e64709586b56636fc1831be5f0227e533363e9a49b8fae5cd2f.cd
+  inflating: /opt/dusk/rusk/circuits/c8fed2bfcc0e0e64709586b56636fc1831be5f0227e533363e9a49b8fae5cd2f.toml
+  inflating: /opt/dusk/rusk/circuits/1210b96327d25a0403be7b8e027cfe964370700b94ec7f47d22128ecbe7e9803.cd
+  inflating: /opt/dusk/rusk/circuits/0095785bd378e5cd3c7427c03b6d4420966c03156bf045b556f22419252fc8bc.cd
+  inflating: /opt/dusk/rusk/circuits/98c9786a8cf36f19bcbdf97f4bc140fe402ae5f72cef3f60f24b96071c0faa73.toml
+  inflating: /opt/dusk/rusk/circuits/1210b96327d25a0403be7b8e027cfe964370700b94ec7f47d22128ecbe7e9803.toml
+  inflating: /opt/dusk/rusk/circuits/98c9786a8cf36f19bcbdf97f4bc140fe402ae5f72cef3f60f24b96071c0faa73.cd
+  inflating: /opt/dusk/rusk/devnet-piecrust.crs
+   creating: /opt/dusk/rusk/state/
+net.core.rmem_max = 50000000
+net.core.rmem_default = 20000000
+net.ipv4.udp_mem = 262144 327680 393216
+net.ipv4.udp_rmem_min = 4096
+net.core.netdev_max_backlog = 2000
+net.core.wmem_default = 20000000
+net.core.wmem_max = 50000000
+Installing services
+Created symlink /etc/systemd/system/multi-user.target.wants/rusk.service → /etc/systemd/system/rusk.service.
+Dusk node installed
+-----
+Prerequisites for launching:
+1. Provide CONSENSUS_KEYS file (default in /opt/dusk/conf/consensus.keys)
+Run the following commands:
+rusk-wallet restore
+rusk-wallet export -d /opt/dusk/conf -n consensus.keys
+
+2. Set DUSK_CONSENSUS_KEYS_PASS (use /opt/dusk/bin/setup_consensus_pwd.sh)
+Run the following command:
+sh /opt/dusk/bin/setup_consensus_pwd.sh
+
+-----
+To launch the node:
+service rusk start
+
+To run the Rusk wallet:
+rusk-wallet
+
+To check the logs:
+tail -F /var/log/rusk.log
+
+The installer also adds a small Rusk querying utility called ruskquery.
+To see what you can query with it:
+ruskquery
+
+To query the the node for the latest block height:
+ruskquery block-height
+
+To check if your node installer is up to date:
+ruskquery version
+
+To reset your Rusk state and wallet cache:
+ruskreset
+
+hugh@dusk02:~/bc/dusk-node-runner/install$
+hugh@dusk02:~/bc/dusk-node-runner/install$ dirs
+~/bc/dusk-node-runner/install
+hugh@dusk02:~/bc/dusk-node-runner/install$ pushd /opt/dusk/rusk/archive/
+/opt/dusk/rusk/archive ~/bc/dusk-node-runner/install
+hugh@dusk02:/opt/dusk/rusk/archive$ rsync -a archive.sqlite3 /tmp
+hugh@dusk02:/opt/dusk/rusk/archive$ rsync -av archive.sqlite3 /tmp
+sending incremental file list
+archive.sqlite3
+
+sent 155,907,342 bytes  received 35 bytes  311,814,754.00 bytes/sec
+total size is 155,869,184  speedup is 1.00
+hugh@dusk02:/opt/dusk/rusk/archive$ rsync -av archive.sqlite3 /tmp
+sending incremental file list
+archive.sqlite3
+
+sent 155,915,539 bytes  received 35 bytes  103,943,716.00 bytes/sec
+total size is 155,877,376  speedup is 1.00
+hugh@dusk02:/opt/dusk/rusk/archive$ ls -la
+total 4604160
+drwxr-xr-x 3 dusk dusk       4096 Feb 16 20:31 .
+drwxrwx--- 7 dusk dusk       4096 Jan  8 21:16 ..
+-rw-r--r-- 1 dusk dusk 4714647552 Feb 16 20:31 archive.sqlite3
+drwxr-xr-x 2 dusk dusk       4096 Feb 14 10:31 moonlight.db
+hugh@dusk02:/opt/dusk/rusk/archive$ pwd
+/opt/dusk/rusk/archive
+hugh@dusk02:/opt/dusk/rusk/archive$ rsync -a archive.sqlite3   /home/hugh/bc/archive/
+hugh@dusk02:/opt/dusk/rusk/archive$ sudo systemctl stop rusk.service
+hugh@dusk02:/opt/dusk/rusk/archive$ rsync -av archive.sqlite3   /home/hugh/bc/archive/
+sending incremental file list
+archive.sqlite3
+
+sent 4,715,950,288 bytes  received 35 bytes  192,487,768.29 bytes/sec
+total size is 4,714,799,104  speedup is 1.00
+hugh@dusk02:/opt/dusk/rusk/archive$ rsync -av --checksum archive.sqlite3   /home/hugh/bc/archive/
+sending incremental file list
+
+sent 85 bytes  received 12 bytes  2.23 bytes/sec
+total size is 4,714,799,104  speedup is 48,606,176.33
+hugh@dusk02:/opt/dusk/rusk/archive$ sudo systemctl start rusk.service
+hugh@dusk02:/opt/dusk/rusk/archive$
+hugh@dusk02:/opt/dusk/rusk/archive$ pwd
+/opt/dusk/rusk/archive
