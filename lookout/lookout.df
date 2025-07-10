@@ -1,0 +1,75 @@
+FROM docker.io/debian:12.9
+
+# see also:
+#  -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef
+#  --allow-downgrades --allow-remove-essential --allow-change-held-packages
+#apt-get --allow-releaseinfo-change update
+#apt-get dist-upgrade -y -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --allow-downgrades --allow-remove-essential --allow-change-held-packages
+
+COPY ./force-rebuild-nonce /tmp/
+
+RUN set -x \
+  && dpkg-reconfigure debconf --frontend=noninteractive \
+  && export DEBIAN_FRONTEND=noninteractive \
+  && apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y \
+       apt-utils \
+       apt-transport-https \
+  && true
+
+RUN set -x \
+  && dpkg-reconfigure debconf --frontend=noninteractive \
+  && apt-get update \
+  && apt-get install -y \
+       curl \
+       dnsutils \
+       emacs-nox \
+       file \
+       findutils \
+       git \
+       jq \
+       lsof \
+       ncat \
+       net-tools \
+       procps \
+       rsync \
+       tmux \
+       unzip \
+       wget \
+  && apt-get remove -y \
+       mailutils-common \
+       mysql-common \
+       postfix \
+  && apt-get autoremove -y \
+  && true
+
+RUN  true \
+  && dpkg-reconfigure debconf --frontend=noninteractive \
+  && apt-get install -y \
+      cmake \
+      python3-venv \
+  && true
+
+WORKDIR /app/pyvenv
+RUN true \
+  && python3 -m venv --system-site-packages /app/pyvenv \
+  && . /app/pyvenv/bin/activate \
+  && python3 -m pip install --upgrade pip \
+  && true
+
+RUN true \
+  && . /app/pyvenv/bin/activate \
+  && pip3 install requests twilio websockets \
+  && true
+
+WORKDIR /app/lookout
+
+
+CMD ["/app/lookout/lookout.py"]
+
+COPY lookout.py /app/lookout
+#COPY src/app/*.py  /app/api/
+RUN python3 -m py_compile /app/lookout/*.py
+
+RUN ls -laR /app/lookout/

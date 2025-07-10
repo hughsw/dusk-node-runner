@@ -1,0 +1,165 @@
+FROM docker.io/debian:12.9
+
+# see also:
+#  -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef
+#  --allow-downgrades --allow-remove-essential --allow-change-held-packages
+#apt-get --allow-releaseinfo-change update
+#apt-get dist-upgrade -y -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --allow-downgrades --allow-remove-essential --allow-change-held-packages
+
+COPY ./force-rebuild-nonce /tmp/
+
+RUN set -x \
+  && dpkg-reconfigure debconf --frontend=noninteractive \
+  && export DEBIAN_FRONTEND=noninteractive \
+  && apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y \
+       init \
+       systemd \
+  && systemctl mask systemd-timesyncd.service systemd-resolved.service \
+  && true
+
+#COPY autologin.conf /etc/systemd/system/console-getty.service.d/
+
+# Start the systemd Init service by default
+CMD ["/sbin/init"]
+
+RUN set -x \
+  && export DEBIAN_FRONTEND=noninteractive \
+  && apt-get install -y \
+       apt-transport-https \
+       cmake \
+       curl \
+       dnsutils \
+       emacs-nox \
+       file \
+       findutils \
+       git \
+       jq \
+       less \
+       logrotate \
+       lsof \
+       ncat \
+       net-tools \
+       procps \
+       python3-fastapi \
+       python3-jinja2 \
+       python3-multipart \
+       python3-pip \
+       python3-uvicorn \
+       python3-venv \
+       rsync \
+       sudo \
+       tmux \
+       unzip \
+       wget \
+  && apt-get remove -y \
+       mailutils-common \
+       mysql-common \
+       postfix \
+  && apt-get autoremove -y \
+  && systemctl mask systemd-resolved.service systemd-timesyncd.service \
+  && true
+
+
+# setup privileged user duskies with sudo and autologin on the "console"
+RUN set -x \
+  && useradd -G sudo -s /bin/bash -m duskies \
+  && echo 'duskies ALL=(ALL) NOPASSWD:ALL' | tee /etc/sudoers.d/duskies_nopasswd \
+  && true
+
+#  && groupadd --system dusk \
+
+COPY securetty /etc/securetty
+COPY pam.d.login /etc/pam.d/login
+COPY autologin.conf /etc/systemd/system/console-getty.service.d/
+COPY 70-shutdown /etc/update-motd.d/
+
+# Install tools for service
+
+WORKDIR /app/api
+
+CMD ["/app/api/cauvicorn", "--host", "0.0.0.0", "--port", "8000", "--reload", "main:app"]
+
+COPY src/app/cauvicorn   /app/api/
+COPY src/app/*.py  /app/api/
+RUN python3 -m py_compile /app/api/*.py
+#RUN ls -laR /app
+
+# Install tools for client
+
+WORKDIR /app/client
+RUN set -x \
+  && curl -fsSL https://deb.nodesource.com/setup_23.x | tee nodejs_setup.sh > /dev/null \
+  && bash nodejs_setup.sh \
+  && apt-get install -y nodejs \
+  && npm install -g npm \
+  && true
+
+#  && npm audit fix --force \
+
+RUN set -x \
+  && npm install -g sv \
+  && npx sv create --help \
+  && npx sv create --template library --types ts  --types jsdoc --no-add-ons my-app \
+  && cd my-app \
+  && npm install \
+  && npm install d3 \
+  && true
+
+WORKDIR /app/client/my-app
+RUN set -x \
+  && npm audit fix || true \
+  && npm audit fix --force || true \
+  && true
+
+#  && npx sv create --help \
+#  && npm audit fix --force \
+
+
+# RUN set -x \
+#   && npx degit sveltejs/template svelte-d3 \
+#   && cd svelte-d3 \
+#   && npm install \
+#   && true
+
+#  && curl -fsSL https://deb.nodesource.com/setup_20.x
+
+# $ npm init vite
+# Need to install the following packages:
+# create-vite@6.1.1
+# Ok to proceed? (y)
+# 
+# 
+# > npx
+# > create-vite
+# 
+# ✔ Project name: … vite-project
+# ✔ Select a framework: › Svelte
+# ✔ Select a variant: › TypeScript
+# 
+# Scaffolding project in /app/client/vite-project...
+# 
+# Done. Now run:
+# 
+#   cd vite-project
+#   npm install
+#   npm run dev
+
+
+#RUN set -x \
+#  && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash \
+#  && nvm install 23 \
+#  && node -v # Should print "v23.6.0". \
+#  && nvm current # Should print "v23.6.0". \
+#  && npm -v # Should print "10.9.2". \
+#  && true
+
+
+#RUN set -x \
+#  && export DEBIAN_FRONTEND=noninteractive \
+#  && apt-get install -y \
+#      nodejs \
+#      node-d3 \
+#  && true
+

@@ -1,0 +1,42 @@
+FROM duskies-base
+
+RUN  true \
+  && dpkg-reconfigure debconf --frontend=noninteractive \
+  && apt-get install -y \
+      cmake \
+      python3-uvicorn \
+      python3-venv \
+  && true
+
+#      python3-fastapi \
+
+WORKDIR /app/pyvenv
+RUN true \
+  && python3 -m venv --system-site-packages /app/pyvenv \
+  && . /app/pyvenv/bin/activate \
+  && python3 -m pip install --upgrade pip \
+  && true
+
+RUN true \
+  && . /app/pyvenv/bin/activate \
+  && pip3 install \
+       'strawberry-graphql[fastapi]' \
+       graphene \
+       requests \
+       twilio \
+       websockets \
+  && true
+
+WORKDIR /app/api
+
+EXPOSE 8000
+
+#CMD ["/app/api/cauvicorn", "--host", "0.0.0.0", "--port", "8000", "main:app"]
+CMD ["/app/api/cauvicorn", "--host", "0.0.0.0", "--port", "8000", "--reload", "main:app"]
+#CMD ["/app/api/cauvicorn", "--host", "::", "--port", "8000", "main:app"]
+
+COPY src/api/cauvicorn   /app/api/
+
+COPY src/api/*.py  /app/api/
+RUN python3 -m py_compile /app/api/*.py
+

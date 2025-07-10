@@ -1,0 +1,60 @@
+---
+
+#networks:
+#  caddy_net:
+#    name: caddy_net
+#    driver: bridge
+##    enable_ipv6: true
+
+services:
+
+  # Caddy acts as our external-facing webserver and handles
+  # obtaining and maintaining  TLS certs from LetsEncrypt.
+  caddy:
+    image: docker.io/library/caddy:2.9-alpine
+    container_name: caddy
+    restart: unless-stopped
+#    networks:
+#      - caddy_net
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - .:/srv:z
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy_data:/data
+      - ./caddy_config:/config
+
+  duskies-api:
+    image: localhost/duskies-api:latest
+    container_name: duskies-api
+    restart: unless-stopped
+    expose:
+      - "8000"
+    environment:
+      DUSKIES_PROVISIONING_DIR: /app/api-data/provisioning-records
+
+    volumes:
+      - ./duskies-api-data:/app/api-data:Z
+      # volume only needed for cauvicorn --reload during dev
+      - ./dusk05.alley.network/src/api:/app/api:z
+
+##    networks:
+##      - caddy_net
+##    ports:
+##      - 8000:8000
+
+  duskies-client:
+    image: localhost/duskies-client:latest
+    container_name: duskies-client
+    restart: unless-stopped
+    expose:
+      - "5173"
+    volumes:
+      - ./dusk05.alley.network/public/src:/app/client/my-app/src:z
+
+#    networks:
+#      - caddy_net
+#    ports:
+#      - 8001:5173

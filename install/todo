@@ -1,0 +1,1 @@
+fix dusk installer so that non-sudo failure doesn't leave bad permissions (I think that's what happened)

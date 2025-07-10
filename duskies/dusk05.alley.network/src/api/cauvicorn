@@ -1,0 +1,11 @@
+#!/app/pyvenv/bin/python3
+# -*- coding: utf-8 -*-
+from uvicorn.main import main
+print('cauvicorn():')
+if __name__ == '__main__':
+    import re
+    import sys
+
+    sys.argv[0] = re.sub(r'(?i)(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    print(f'cauvicorn: sys.argv[0], {repr(sys.argv[0])}')
+    sys.exit(main())

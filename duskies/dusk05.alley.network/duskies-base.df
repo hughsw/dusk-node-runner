@@ -1,0 +1,51 @@
+FROM docker.io/debian:12.9
+
+# see also:
+#  -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef
+#  --allow-downgrades --allow-remove-essential --allow-change-held-packages
+#apt-get --allow-releaseinfo-change update
+#apt-get dist-upgrade -y -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --allow-downgrades --allow-remove-essential --allow-change-held-packages
+
+COPY ./force-rebuild-nonce /tmp/
+
+RUN set -x \
+  && dpkg-reconfigure debconf --frontend=noninteractive \
+  && export DEBIAN_FRONTEND=noninteractive \
+  && apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y \
+       apt-utils \
+       apt-transport-https \
+       init \
+       systemd \
+  && systemctl mask systemd-timesyncd.service systemd-resolved.service \
+  && true
+
+# Start the systemd Init service by default
+CMD ["/sbin/init"]
+
+RUN set -x \
+  && dpkg-reconfigure debconf --frontend=noninteractive \
+  && apt-get update \
+  && apt-get install -y \
+       curl \
+       dnsutils \
+       emacs-nox \
+       file \
+       findutils \
+       git \
+       jq \
+       lsof \
+       ncat \
+       net-tools \
+       procps \
+       rsync \
+       tmux \
+       unzip \
+       wget \
+  && apt-get remove -y \
+       mailutils-common \
+       mysql-common \
+       postfix \
+  && apt-get autoremove -y \
+  && true

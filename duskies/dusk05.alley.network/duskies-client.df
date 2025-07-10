@@ -1,0 +1,56 @@
+FROM duskies-base
+
+# Install tools for client
+
+WORKDIR /app/client
+
+RUN  true \
+RUN set -x \
+  && curl -fsSL https://deb.nodesource.com/setup_23.x | tee nodejs_setup.sh > /dev/null \
+  && bash -n nodejs_setup.sh \
+  && bash nodejs_setup.sh \
+  && apt-get install -y nodejs \
+  && npm install -g npm \
+  && true
+
+#  && npm audit fix --force \
+
+RUN set -x \
+  && npm install -g sv d3 \
+  && npx sv create --help \
+  && npx sv create  --template library --types ts  --no-add-ons  my-app \
+  && true
+
+#  && cd my-app \
+
+#  && npx sv create --template library --types ts  --types jsdoc --no-add-ons my-app \
+
+WORKDIR /app/client/my-app
+COPY vite.config.ts /app/client/my-app/
+RUN set -x \
+  && echo && echo package.json: && cat package.json \
+  && echo && echo svelte.config.js: && cat svelte.config.js \
+  && echo && echo tsconfig.json: && cat tsconfig.json \
+  && echo && echo vite.config.ts: && cat vite.config.ts \
+  && npm install \
+  && npm run check \
+  && echo && echo .svelte-kit/tsconfig.json: && cat .svelte-kit/tsconfig.json \
+  && true
+
+# npm run check is so that 'svelte-kit sync' gets run once and populates missing config
+
+
+
+RUN set -x \
+  && npm audit fix || true \
+  && npm audit fix --force || true \
+  && true
+
+RUN cat README.md
+
+
+#CMD ["npm", "run", "dev", "--host", "0.0.0.0"]
+CMD ["npm", "run", "dev"]
+
+#  && npx sv create --help \
+#  && npm audit fix --force \

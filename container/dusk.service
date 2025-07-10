@@ -1,0 +1,32 @@
+[Unit]
+Description=Dusk provisioner node (in a podman container)
+After=local-fs.target
+
+[Service]
+User=1002
+Group=1002
+
+ExecStartPre=mkdir -p /home/hugh/bc/dusk-node-runner/container/dusk_state/opt_dusk
+ExecStartPre=mkdir -p /home/hugh/bc/dusk-node-runner/container/dusk_state/root_.dusk
+ExecStartPre=mkdir -p /home/hugh/bc/dusk-node-runner/container/dusk_state/var_log
+
+ExecStart=podman run \
+           --rm \
+           --network=host \
+           --name dusk \
+           -v /home/hugh/bc/dusk-node-runner/container/dusk_state/opt_dusk:/opt/dusk \
+           -v /home/hugh/bc/dusk-node-runner/container/dusk_state/root_.dusk:/home/duskadmin/.dusk \
+           -v /home/hugh/bc/dusk-node-runner/container/dusk_state/var_log:/var/log \
+           --userns=keep-id:uid=999,gid=1001 \
+           localhost/dusk
+
+#           -v /home/hugh/bc/dusk-node-runner/container/dusk_state/rusk.log:/var/log/rusk.log \
+#           -v /home/hugh/bc/dusk-node-runner/container/dusk_state/rusk_recovery.log:/var/log/rusk_recovery.log \
+
+
+# TODO: podman secrets
+ExecStop=-podman exec --user=duskadmin dusk /bin/dash -c 'cd ; RUSK_WALLET_PWD=4eZGpeDfh4VLkyGd8Ei6 rusk-wallet unstake'
+ExecStop=podman exec --user=duskadmin dusk sudo shutdown now
+
+[Install]
+WantedBy=multi-user.target

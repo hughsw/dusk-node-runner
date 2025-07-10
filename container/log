@@ -1,0 +1,42 @@
+ 
+  export CONTAINERIZER=podman
+  export CONTAINERIZER=docker
+  ./build base && ./build client && ./build api
+
+
+  podman exec -it dusk tail -f /var/log/rusk.log | grep -i -e 'block accepted' -e '\(warn\|error\)'
+
+
+  ./provisioning-stats.py | grep -e '^{"timestamp_sec": 17' | jq .
+  ./provisioning-stats.py | grep -e '^\[{"top_up_fraction": ' | jq .
+  ./provisioning-stats.py | grep -e '^\[{"tldr": ' | jq .
+
+
+  grep -o -e "'client_finalized_interval': [0-9.]\+" * | awk -f stats.awk
+  89019 890472 8.91701e+06 7.0698583126068115 24.9241681098938 10.0032 0.326266
+
+  podman exec --user=duskadmin dusk /bin/dash -c 'export RUSK_WALLET_PWD=* ; ruskquery block-height ; rusk-wallet --log-type=json stake-info ; rusk-wallet --log-type=json balance'
+  podman exec --user=duskadmin dusk /bin/dash -c 'export RUSK_WALLET_PWD=* ; rusk-wallet --log-type=json stake --amt=1010'
+
+  echo && date '+%Y-%m-%d-%H%M-%S' && ruskquery block-height && ruskquery peers && rusk-wallet stake-info && rusk-wallet balance
+
+  podman exec --user=duskadmin dusk /bin/dash -c 'printenv | sort'
+
+  podman run -it --rm --name rusky -v $(pwd):/app --workdir /app localhost/dusk:latest emacs myblock.py
+  ./myblock.py >> myblock.log
+
+  podman run -it --rm --name rusky --healthcheck-command 'CMD-SHELL echo hello && exit 2 || exit 1' --healthcheck-interval=0  -v $(pwd):/app --workdir /app localhost/dusk:latest emacs myblock.py
+
+  podman run -it --rm --name rusky  -v $(pwd):/app --workdir /app localhost/dusk:latest pwd
+  
+  ExecStop=-  podman exec --user=duskadmin dusk /bin/dash -c 'cd ; RUSK_WALLET_PWD=* rusk-wallet unstake'
+  ExecStop=   podman exec --user=duskadmin dusk sudo shutdown now
+
+  loginctl enable-linger hugh
+
+  systemd-analyze plot >bootup.svg
+  systemd-analyze dot | dot -Tsvg >systemd.svg
+  echo fooner > index.html
+  python3 -m http.server -b '::' 8001
+
+ 

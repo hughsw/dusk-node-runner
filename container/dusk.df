@@ -34,11 +34,18 @@ RUN set -x \
        less \
        logrotate \
        net-tools \
+       python3-pip \
+       python3-venv \
        sudo \
        ufw \
        unzip \
-  && systemctl mask systemd-timesyncd.service systemd-resolved.service \
+  && systemctl mask systemd-resolved.service systemd-timesyncd.service \
   && true
+
+#  && pip3 install --upgrade pip \
+#       python3-full \
+#       python3-bip-utils \
+
 
 # setup privileged user duskadmin with sudo and autologin on the "console"
 RUN set -x \
@@ -50,27 +57,49 @@ RUN set -x \
 COPY securetty /etc/securetty
 COPY pam.d.login /etc/pam.d/login
 COPY autologin.conf /etc/systemd/system/console-getty.service.d/
+COPY 70-shutdown /etc/update-motd.d/
+
+# Install tools for duskadmin
+
+RUN set -x \
+  && export DEBIAN_FRONTEND=noninteractive \
+  && apt-get install -y \
+       emacs-nox \
+  && apt-get remove -y \
+       mailutils-common \
+       mysql-common \
+       postfix \
+  && apt-get autoremove -y \
+  && true
+
+USER duskadmin:duskadmin
+WORKDIR /home/duskadmin
+RUN set -x \
+  && python3 -m venv --system-site-packages ./pyvenv \
+  && ./pyvenv/bin/pip3 install \
+       bip-utils \
+       requests \
+       websockets \
+  && true
 
 
-# Try to set up dusk node as duskadmin as per https://github.com/dusk-network/node-installer
+# NOTE: OUT-OF-DATE Try to set up dusk node as duskadmin as per https://github.com/dusk-network/node-installer
 # But USER doesn't put an entry in utmp file so logname (used by node-installer.sh)
 # returns root, so wallet is installed in /root/.dusk, so we have to manually move it to
 # /home/duskadmin...
 
-#USER duskadmin:dusk
-WORKDIR /home/duskadmin
-COPY --chown=duskadmin:dusk ./node-installer.sh /home/duskadmin/
-
+COPY --chown=duskadmin:duskadmin ./node-installer.sh /home/duskadmin/
+USER root:root
 RUN set -x \
   && bash -x node-installer.sh \
   && mv /root/.dusk /home/duskadmin/.dusk \
   && chown -R duskadmin:dusk /home/duskadmin/.dusk \
   && true
 
-USER root:root
 WORKDIR /root
 
 # TODO: evaluate for the best way to initialize the (optional?) mounted storage...
+# could container's auto copy on first mount be used, but, would not have our nonce check in initialize-dusk-state.sh
 RUN set -x \
   && mv /opt/dusk /opt/dusk.install \
   && mv /home/duskadmin/.dusk  /home/duskadmin/.dusk.install \
@@ -87,3 +116,21 @@ RUN set -x \
   && bash -n /opt/dusk.install/sbin/initialize-dusk-state.sh \
   && systemctl enable initialize-dusk-state.service \
   && true
+
+#  && systemctl disable rusk.service \
+
+ENV PATH="/home/duskadmin/bin/:$PATH"
+ENV API_ENDPOINT=https://nodes.dusk.network
+
+# oft-modified tooling
+COPY --chown=duskadmin:duskadmin ./mnemonic /home/duskadmin/bin/
+
+USER duskadmin:duskadmin
+WORKDIR /home/duskadmin
+RUN set -x \
+  && /home/duskadmin/bin/mnemonic \
+  && mnemonic \
+  && true
+
+USER root:root
+WORKDIR /root
