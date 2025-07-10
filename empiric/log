@@ -1,0 +1,6 @@
+
+  curl  -sSL -X POST 'http://localhost:8080/on/node/provisioners' | jq .
+
+  curl  -sSL -X POST 'http://localhost:8080/on/node/info'
+
+  curl  -sSL -X POST 'http://localhost:8080/on/blocks/gas-price'
