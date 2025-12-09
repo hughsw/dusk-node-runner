@@ -1,0 +1,192 @@
+
+  (echo && date && du -skx /opt/dusk/rusk/* | sort -r -n -k 1 ) 2>&1 | tee -a ~/bc/rusk-db-sizes.txt
+
+6148	devnet-piecrust.crs
+5356	state
+2372	circuits
+1152	chain.db
+20	keys
+6148	devnet-piecrust.crs
+5356	state
+2372	circuits
+1252	chain.db
+20	keys
+
+Wed Jan  8 20:47:34 UTC 2025
+6148	devnet-piecrust.crs
+5356	state
+2532	chain.db
+2372	circuits
+20	keys
+
+Wed Jan  8 20:47:50 UTC 2025
+6148	devnet-piecrust.crs
+5356	state
+2636	chain.db
+2372	circuits
+20	keys
+
+Wed Jan  8 20:49:27 UTC 2025
+6148	devnet-piecrust.crs
+5356	state
+3260	chain.db
+2372	circuits
+20	keys
+
+Wed Jan  8 20:49:44 UTC 2025
+6148	devnet-piecrust.crs
+5356	state
+3360	chain.db
+2372	circuits
+20	keys
+
+Wed Jan  8 20:50:21 UTC 2025
+6148	devnet-piecrust.crs
+5356	state
+3604	chain.db
+2372	circuits
+20	keys
+
+Wed Jan  8 20:52:33 UTC 2025
+6148	devnet-piecrust.crs
+5512	chain.db
+5228	state
+2372	circuits
+20	keys
+
+
+Install Rusk Archive node
+
+Wed Jan  8 21:14:55 UTC 2025
+du: cannot access 'chain.db': No such file or directory
+6148	devnet-piecrust.crs
+2372	circuits
+20	keys
+4	state
+
+Wed Jan  8 21:16:15 UTC 2025
+6148	devnet-piecrust.crs
+5484	state
+2372	circuits
+204	chain.db
+20	keys
+
+Wed Jan  8 21:16:33 UTC 2025
+6148	devnet-piecrust.crs
+5228	state
+2372	circuits
+376	chain.db
+20	keys
+
+Wed Jan  8 21:17:24 UTC 2025
+6148	devnet-piecrust.crs
+5228	state
+2372	circuits
+756	chain.db
+20	keys
+
+Wed Jan  8 21:18:48 UTC 2025
+11764	/opt/dusk/rusk/archive
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5356	/opt/dusk/rusk/state
+2372	/opt/dusk/rusk/circuits
+1392	/opt/dusk/rusk/chain.db
+20	/opt/dusk/rusk/keys
+
+Wed Jan  8 21:19:18 UTC 2025
+72696	/opt/dusk/bin
+30816	/opt/dusk/rusk
+24	/opt/dusk/conf
+16	/opt/dusk/services
+
+Wed Jan  8 21:20:55 UTC 2025
+21732	/opt/dusk/rusk/archive
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5356	/opt/dusk/rusk/state
+3388	/opt/dusk/rusk/chain.db
+2372	/opt/dusk/rusk/circuits
+20	/opt/dusk/rusk/keys
+
+Wed Jan  8 21:21:10 UTC 2025
+22956	/opt/dusk/rusk/archive
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5356	/opt/dusk/rusk/state
+3512	/opt/dusk/rusk/chain.db
+2372	/opt/dusk/rusk/circuits
+20	/opt/dusk/rusk/keys
+
+Wed Jan  8 21:21:33 UTC 2025
+24792	/opt/dusk/rusk/archive
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5356	/opt/dusk/rusk/state
+3700	/opt/dusk/rusk/chain.db
+2372	/opt/dusk/rusk/circuits
+20	/opt/dusk/rusk/keys
+
+Wed Jan  8 21:26:25 UTC 2025
+47656	/opt/dusk/rusk/archive
+8012	/opt/dusk/rusk/chain.db
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5420	/opt/dusk/rusk/state
+2372	/opt/dusk/rusk/circuits
+20	/opt/dusk/rusk/keys
+
+Wed Jan  8 21:57:56 UTC 2025
+152424	/opt/dusk/rusk/archive
+27904	/opt/dusk/rusk/chain.db
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5420	/opt/dusk/rusk/state
+2372	/opt/dusk/rusk/circuits
+20	/opt/dusk/rusk/keys
+
+Thu Jan  9 11:10:45 UTC 2025
+212292	/opt/dusk/rusk/archive
+45636	/opt/dusk/rusk/chain.db
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5420	/opt/dusk/rusk/state
+2372	/opt/dusk/rusk/circuits
+20	/opt/dusk/rusk/keys
+
+Thu Jan  9 11:11:02 UTC 2025
+212316	/opt/dusk/rusk/archive
+45640	/opt/dusk/rusk/chain.db
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5420	/opt/dusk/rusk/state
+2372	/opt/dusk/rusk/circuits
+20	/opt/dusk/rusk/keys
+
+Thu Jan  9 15:57:23 UTC 2025
+233916	/opt/dusk/rusk/archive
+52680	/opt/dusk/rusk/chain.db
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5548	/opt/dusk/rusk/state
+2372	/opt/dusk/rusk/circuits
+20	/opt/dusk/rusk/keys
+
+Mon Jan 13 20:42:19 UTC 2025
+706156	/opt/dusk/rusk/archive
+193288	/opt/dusk/rusk/chain.db
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5932	/opt/dusk/rusk/state
+2372	/opt/dusk/rusk/circuits
+20	/opt/dusk/rusk/keys
+
+stop rusk
+copy archive.sqlite3
+start rusk -- note chain.db shrink
+
+Mon Jan 13 21:33:56 UTC 2025
+708120	/opt/dusk/rusk/archive
+62568	/opt/dusk/rusk/chain.db
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5932	/opt/dusk/rusk/state
+2372	/opt/dusk/rusk/circuits
+20	/opt/dusk/rusk/keys
+
+Mon Jan 13 21:34:17 UTC 2025
+708144	/opt/dusk/rusk/archive
+62572	/opt/dusk/rusk/chain.db
+6148	/opt/dusk/rusk/devnet-piecrust.crs
+5932	/opt/dusk/rusk/state
+2372	/opt/dusk/rusk/circuits
+20	/opt/dusk/rusk/keys
