@@ -24,6 +24,8 @@ mkdir -p $log_dir
 {
     set -x
 
+    # https://docs.dusk.network/operator/guides/upgrade-node/
+    # curl --proto '=https' --tlsv1.2 -sSfL https://github.com/dusk-network/node-installer/releases/latest/download/node-installer.sh | sudo bash
     curl --proto '=https' --tlsv1.2 -sSfL -o $installer https://github.com/dusk-network/node-installer/releases/latest/download/node-installer.sh
 
     podman build -f dusk.df -t dusk .
