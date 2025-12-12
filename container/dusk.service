@@ -1,27 +1,41 @@
 [Unit]
 Description=Dusk provisioner node (in a podman container)
-After=local-fs.target
+
+# Note: see 'loginctl enable-linger 1002' which allows the following to work (/run/users/1002/containers) even if 1002 is not logged in...
+Requires=user@1002.service user-runtime-dir@1002.service run-user-1002.mount
+After=user@1002.service user-runtime-dir@1002.service run-user-1002.mount
+
+#After=local-fs.target
+#After=multi-user.target
+
+#ConditionPathIsReadWrite=/run/user/1002
 
 [Service]
 User=1002
 Group=1002
 
+# Grrr, even after the After= above, we have a race
+ExecStartPre=/bin/dash -c 'while [ ! -w /run/user/1002 ] ; do echo "Waiting for /run/user/1002 to exist..." ; sleep 2 ; done ; sleep 1'
+
+#ExecStartPre=/bin/bash -c '(while ! nc -z -v -w1 localhost 443 2>/dev/null; do echo "Waiting for port 443 to open..."; sleep 2; done); sleep 2'
+
 ExecStartPre=mkdir -p /home/hugh/bc/dusk-node-runner/container/dusk_state/opt_dusk
 ExecStartPre=mkdir -p /home/hugh/bc/dusk-node-runner/container/dusk_state/root_.dusk
-ExecStartPre=mkdir -p /home/hugh/bc/dusk-node-runner/container/dusk_state/var_log
+ExecStartPre=touch /home/hugh/bc/dusk-node-runner/container/dusk_state/rusk.log /home/hugh/bc/dusk-node-runner/container/dusk_state/rusk_recovery.log
+#ExecStartPre=mkdir -p /home/hugh/bc/dusk-node-runner/container/dusk_state/var_log
 
 ExecStart=podman run \
            --rm \
            --network=host \
-           --name dusk \
+           --userns=keep-id:uid=999,gid=1001 \
            -v /home/hugh/bc/dusk-node-runner/container/dusk_state/opt_dusk:/opt/dusk \
            -v /home/hugh/bc/dusk-node-runner/container/dusk_state/root_.dusk:/home/duskadmin/.dusk \
-           -v /home/hugh/bc/dusk-node-runner/container/dusk_state/var_log:/var/log \
-           --userns=keep-id:uid=999,gid=1001 \
-           localhost/dusk
+           -v /home/hugh/bc/dusk-node-runner/container/dusk_state/rusk.log:/var/log/rusk.log \
+           -v /home/hugh/bc/dusk-node-runner/container/dusk_state/rusk_recovery.log:/var/log/rusk_recovery.log \
+           --name dusk \
+           localhost/dusk:latest
 
-#           -v /home/hugh/bc/dusk-node-runner/container/dusk_state/rusk.log:/var/log/rusk.log \
-#           -v /home/hugh/bc/dusk-node-runner/container/dusk_state/rusk_recovery.log:/var/log/rusk_recovery.log \
+#           -v /home/hugh/bc/dusk-node-runner/container/dusk_state/var_log:/var/log \
 
 
 # TODO: podman secrets

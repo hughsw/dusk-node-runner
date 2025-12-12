@@ -22,6 +22,10 @@
 
   podman exec --user=duskadmin dusk /bin/dash -c 'printenv | sort'
 
+  podman exec -it --user duskadmin --workdir /home/duskadmin dusk bash --login
+
+  echo && date '+%Y-%m-%d-%H%M-%S' && rusk --version && ruskquery block-height && ruskquery peers && rusk-wallet stake-info && rusk-wallet balance
+
   podman run -it --rm --name rusky -v $(pwd):/app --workdir /app localhost/dusk:latest emacs myblock.py
   ./myblock.py >> myblock.log
 

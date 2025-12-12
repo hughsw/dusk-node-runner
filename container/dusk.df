@@ -59,6 +59,12 @@ COPY pam.d.login /etc/pam.d/login
 COPY autologin.conf /etc/systemd/system/console-getty.service.d/
 COPY 70-shutdown /etc/update-motd.d/
 
+# Grrr, very hard to understand how Ubuntu/systemd set up the /tmp ramfs ...
+## Note: copying tmp.conf into /etc/tmpfiles.d did not work
+#COPY tmp.conf /usr/lib/tmpfiles.d/
+#RUN ls -la /
+#RUN ls -la /tmp
+
 # Install tools for duskadmin
 
 RUN set -x \
@@ -67,6 +73,7 @@ RUN set -x \
        emacs-nox \
   && apt-get remove -y \
        mailutils-common \
+       modemmanager \
        mysql-common \
        postfix \
   && apt-get autoremove -y \
@@ -101,6 +108,7 @@ WORKDIR /root
 # TODO: evaluate for the best way to initialize the (optional?) mounted storage...
 # could container's auto copy on first mount be used, but, would not have our nonce check in initialize-dusk-state.sh
 RUN set -x \
+  && sed -i -E -e 's| /tmp/| /var/tmp/|g' /opt/dusk/bin/download_state.sh \
   && mv /opt/dusk /opt/dusk.install \
   && mv /home/duskadmin/.dusk  /home/duskadmin/.dusk.install \
   && find / -xdev \( -iname '*dusk*' -o -iname '*rusk*' \) \
@@ -115,9 +123,9 @@ RUN set -x \
   && systemd-analyze verify --recursive-errors=yes /etc/systemd/system/initialize-dusk-state.service \
   && bash -n /opt/dusk.install/sbin/initialize-dusk-state.sh \
   && systemctl enable initialize-dusk-state.service \
+  && systemctl enable rusk.service \
   && true
 
-#  && systemctl disable rusk.service \
 
 ENV PATH="/home/duskadmin/bin/:$PATH"
 ENV API_ENDPOINT=https://nodes.dusk.network

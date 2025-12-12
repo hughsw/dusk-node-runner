@@ -8,7 +8,7 @@ Before=rusk.service
 Type=oneshot
 RemainAfterExit=yes
 
-PassEnvironment=RUSK_PUBLIC_ADDRESS
+#PassEnvironment=RUSK_PUBLIC_ADDRESS
 
 ExecStart= /opt/dusk.install/sbin/initialize-dusk-state.sh
 
