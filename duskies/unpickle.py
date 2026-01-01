@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 
-import os
+import sys, os
 import pickle
 import json
 
-top = '/home/hugh/bc/dusk-node-runner/duskies/duskies-api-data/provisioning-records'
-epoch = 'epoch-0160'
-filename = 'dusk-provisioning_block-0346542_epoch-0160_epochblock-0942_2025-02-16-1457-37.pkl'
+if False:
+    top = '/home/hugh/bc/dusk-node-runner/duskies/duskies-api-data/provisioning-records'
+    epoch = 'epoch-0160'
+    filename = 'dusk-provisioning_block-0346542_epoch-0160_epochblock-0942_2025-02-16-1457-37.pkl'
 
-filename_abs = os.path.join(top, epoch, filename)
+    filename_abs = os.path.join(top, epoch, filename)
+
+filename_abs = sys.argv[1]
 
 # Load dictionary from a file'dusk-provisioning_block-0346542_epoch-0160_epochblock-0942_2025-02-16-1457-37.pkl'
 with open(filename_abs, 'rb') as file:

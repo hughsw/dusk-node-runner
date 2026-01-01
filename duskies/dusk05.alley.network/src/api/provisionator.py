@@ -72,6 +72,7 @@ def delta_key(key):
 def summary_diff(current, prev):
     if prev is None: return {}
 
+    # numerical difference of values of each shared key if they have the same numeric type
     current_keys = set((key, type(value)) for key, value in current.items())
     prev_keys = set((key, type(value)) for key, value in prev.items())
     #current_keys = set((key, type(value).__name__) for key, value in current.items())
@@ -259,9 +260,11 @@ async def provisionator():
 
                     except asyncio.CancelledError:
                         raise
+                    except  WebSocketException:
+                        raise
                     except BaseException as e:
                         await printio(f'\nexception: {type(e).__name__}: {e} : line: {e.__traceback__.tb_lineno}, event: {event}')
-                        raise
+                        await asyncio.sleep(3)
 
         except WebSocketException as e:
             await printio(f'\n{type(e).__name__}: {e} : will attempt reconnect')
@@ -273,9 +276,13 @@ async def provisionator():
             # task.cancel() or Ctrl-C, so quit the "forever" loop
             break
 
+        except ...:
+            continue
+
         finally:
             if websocket is not None:
                 await websocket.close()
+                websocket = None
 
 
 async def get_summary():
