@@ -1,0 +1,89 @@
+.%  duskies                1175 Dired by date    ~/bc/dusk-node-runner/duskies/
+ %  dusk-node-runner        773 Dired by name    ~/bc/dusk-node-runner/
+  * *Shell Command Output*     263 Fundamental
+ %  bc                      216 Dired by name    ~/bc/
+ %  hugh                    879 Dired by name    ~/
+ %  home                    266 Dired by name    /home/
+ %  container              1417 Dired by name    ~/bc/dusk-node-runner/container/
+ %  dusk_state              437 Dired by name    ~/bc/dusk-node-runner/container/dusk_state/
+ %  empiric                1074 Dired by date    ~/bc/dusk-node-runner/empiric/
+ %  provisioning.py<empiric>    7981 Python           ~/bc/dusk-node-runner/empiric/provisioning.py
+ %  run<container>         1324 Shell-script[bash] ~/bc/dusk-node-runner/container/run
+  * *shell*              155239 Shell:run        ~/bc/dusk-node-runner/container/
+ %  build<container>        981 Shell-script[bash] ~/bc/dusk-node-runner/container/build
+ %  duskies-api-data        392 Dired by name    ~/bc/dusk-node-runner/duskies/duskies-api-data/
+ %  provisioning-records<duskies-api-data>    3594 Dired by name    ~/bc/dusk-node-runner/duskies/duskies-api-data/provisioning-records/
+ %  epoch-0170           217712 Dired by name    ~/bc/dusk-node-runner/duskies/duskies-api-data/provisioning-records/epoch-0170/
+    unpickle.py             969 Python           ~/bc/dusk-node-runner/duskies/unpickle.py
+ %  dusk05.alley.network    1305 Dired by name    ~/bc/dusk-node-runner/duskies/dusk05.alley.network/
+ %  src<dusk05.alley.network>     253 Dired by name    ~/bc/dusk-node-runner/duskies/dusk05.alley.network/src/
+ %* api                     959 Dired by date    ~/bc/dusk-node-runner/duskies/dusk05.alley.network/src/api/
+    post.txt               2465 Text             ~/bc/dusk-node-runner/duskies/dusk05.alley.network/src/api/post.txt
+ %  epoch-0145           238374 Dired by name    ~/bc/dusk-node-runner/duskies/duskies-api-data/provisioning-records/epoch-0145/
+  * *duskies*           235755718 Shell:run        ~/bc/dusk-node-runner/duskies/
+    provisionator.py      20255 Python           ~/bc/dusk-node-runner/duskies/dusk05.alley.network/src/api/provisionator.py
+ %  dusk-reward-delta.py   22965 Python           ~/bc/dusk-node-runner/duskies/dusk05.alley.network/src/api/dusk-reward-delta.py
+ %  utils.py               1765 Python           ~/bc/dusk-node-runner/duskies/dusk05.alley.network/src/api/utils.py
+    provisioning.py<api>   18291 Python           ~/bc/dusk-node-runner/duskies/dusk05.alley.network/src/api/provisioning.py
+ %  provisioning-records<api>    5821 Dired by date    ~/bc/dusk-node-runner/duskies/dusk05.alley.network/src/api/provisioning-records/
+ %  epoch-0160           120943 Dired by name    ~/bc/dusk-node-runner/duskies/duskies-api-data/provisioning-records/epoch-0160/
+ %  epoch-0159           275703 Dired by name    ~/bc/dusk-node-runner/duskies/duskies-api-data/provisioning-records/epoch-0159/
+    fixem.sh                164 Shell-script[sh] ~/bc/dusk-node-runner/duskies/duskies-api-data/fixem.sh
+ %  provisioning-records2    1200 Dired by name    ~/bc/dusk-node-runner/duskies/duskies-api-data/provisioning-records2/
+    mvepochs.py            1452 Python           ~/bc/dusk-node-runner/duskies/duskies-api-data/provisioning-records2/mvepochs.py
+ %  reward-deltas.py       4616 Python           ~/bc/dusk-node-runner/duskies/reward-deltas.py
+ %  provisioning-records-dev     826 Dired by name    ~/bc/dusk-node-runner/duskies/duskies-api-data/provisioning-records-dev/
+    .gitignore               75 Fundamental      ~/bc/dusk-node-runner/.gitignore
+    reward-deltas_07.log    1126 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas_07.log
+    reward-deltas_08.log    1528 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas_08.log
+    reward-deltas_06.log    1126 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas_06.log
+    reward-deltas_02.log     325 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas_02.log
+    reward-deltas_05.log     701 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas_05.log
+    reward-deltas_04.log     391 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas_04.log
+    reward-deltas_03.log     351 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas_03.log
+    reward-deltas_01.log     273 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas_01.log
+    reward-deltas_00.log     156 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas_00.log
+    reward-deltas8.log      373 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas8.log
+    reward-deltas7.log      373 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas7.log
+    post-rewards.txt       1164 Text             ~/bc/dusk-node-runner/duskies/post-rewards.txt
+    reward-deltas6.log      689 Fundamental      ~/bc/dusk-node-runner/duskies/reward-deltas.logs/reward-deltas6.log
+ %  dusk_tokenomics.py    12102 Python           ~/bc/dusk-node-runner/duskies/dusk05.alley.network/src/api/dusk_tokenomics.py
+    main.py                3489 Python           ~/bc/dusk-node-runner/duskies/dusk05.alley.network/src/api/main.py
+ %  genesis-block_mainnet.toml   88492 Conf[TOML]       ~/bc/dusk-node-runner/empiric/genesis-block_mainnet.toml
+ %  *Man brotli*           4189 Man
+    jqdiff.sh               486 Shell-script[sh] ~/bc/dusk-node-runner/duskies/jqdiff.sh
+    log                     237 Fundamental      ~/bc/dusk-node-runner/duskies/log
+ %  *Man awk*             47162 Man
+ %  *Man mawk*            47162 Man
+ %  *Man diff*             6969 Man
+ %  build<dusk05.alley.network>     750 Shell-script[bash] ~/bc/dusk-node-runner/duskies/dusk05.alley.network/build
+ %  *Man bash*           398395 Man
+ %  1.json               135033 JavaScript       /tmp/1.json
+ %* tmp                    1171 Dired by name    /tmp/
+    run<duskies>            340 Shell-script[bash] ~/bc/dusk-node-runner/duskies/run
+    docker-compose.yml     1322 Fundamental      ~/bc/dusk-node-runner/duskies/docker-compose.yml
+ %  caddy_data              241 Dired by name    ~/bc/dusk-node-runner/duskies/caddy_data/
+ %  caddy<caddy_data>       515 Dired by name    ~/bc/dusk-node-runner/duskies/caddy_data/caddy/
+    myblock.py            17005 Python           ~/bc/dusk-node-runner/duskies/dusk05.alley.network/src/api/myblock.py
+    Caddyfile               308 Fundamental      ~/bc/dusk-node-runner/duskies/Caddyfile
+ %  sms.py                 3070 Python           ~/bc/dusk-node-runner/container/sms.py
+    duskies-api.df          957 Fundamental      ~/bc/dusk-node-runner/duskies/dusk05.alley.network/duskies-api.df
+ %* caddy<duskies>          187 Dired by name    ~/bc/dusk-node-runner/duskies/caddy/
+    vite.config.ts          269 JavaScript       ~/bc/dusk-node-runner/duskies/dusk05.alley.network/vite.config.ts
+ %  build.logs              457 Dired by date    ~/bc/dusk-node-runner/duskies/dusk05.alley.network/build.logs/
+ %  duskies-client_2025-02-11-1645-54.log   23968 Fundamental      ~/bc/dusk-node-runner/duskies/dusk05.alley.network/build.logs/duskies-client_2025-02-11-1645-54.log
+ %  public                  256 Dired by name    ~/bc/dusk-node-runner/duskies/dusk05.alley.network/public/
+ %  src<public>            1268 Dired by name    ~/bc/dusk-node-runner/duskies/dusk05.alley.network/public/src/
+    duskies-base.df        1330 Fundamental      ~/bc/dusk-node-runner/duskies/dusk05.alley.network/duskies-base.df
+ %  duskies-client.df      1380 Fundamental      ~/bc/dusk-node-runner/duskies/dusk05.alley.network/duskies-client.df
+ %  autologin.conf          586 Conf[Unix]       ~/bc/dusk-node-runner/duskies/dusk05.alley.network/autologin.conf
+    id_ed25519.pub          102 Fundamental      ~/.ssh/id_ed25519.pub
+ %  .ssh                    488 Dired by name    ~/.ssh/
+ %* *Man ssh-keygen*      44548 Man
+ %  *GNU Emacs*             920 Fundamental
+    *scratch*               145 Lisp Interaction
+ %* *Messages*           152114 Messages
+ %* *Async-native-compile-log*   19511 Fundamental
+  * *Dired log*         9833958 Fundamental
+ %* *Warnings*             1604 Special
+ %* *Completions*           114 Completion List
