@@ -1,0 +1,19 @@
+{
+	"sans": [
+		"duskies.network"
+	],
+	"issuer_data": {
+		"url": "https://acme-v02.api.letsencrypt.org/acme/cert/06208a77d4b93f5cfe2137ae18772d57215e",
+		"ca": "https://acme-v02.api.letsencrypt.org/directory",
+		"account": "https://acme-v02.api.letsencrypt.org/acme/acct/2222791645",
+		"renewal_info": {
+			"suggestedWindow": {
+				"start": "2026-02-05T16:58:40Z",
+				"end": "2026-02-07T12:09:30Z"
+			},
+			"_uniqueIdentifier": "jw0TovYuftFQbDMYOF1ZjiNykco.BiCKd9S5P1z-ITeuGHctVyFe",
+			"_retryAfter": "2026-01-01T18:43:07.865892599Z",
+			"_selectedTime": "2026-02-06T11:56:23Z"
+		}
+	}
+}

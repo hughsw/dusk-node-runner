@@ -1,0 +1,14 @@
+{
+	"status": "valid",
+	"contact": [
+		"mailto:hsw+duskies@20octaves.com"
+	],
+	"termsOfServiceAgreed": true,
+	"externalAccountBinding": {
+		"protected": "eyJhbGciOiJIUzI1NiIsImtpZCI6Ikw2MFdndWRvWldrX0FjMm5pUWZqcUEiLCJ1cmwiOiJodHRwczovL2FjbWUuemVyb3NzbC5jb20vdjIvRFY5MC9uZXdBY2NvdW50In0",
+		"payload": "eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6Ik1VbUlEdHk5SHY4MEJ1S0pVT0xPRHB0MFdGSXI5NERJajd2SEVwRUxvRm8iLCJ5IjoieFpvOXJCNFdXd0Z0SFE2R0pSbFpnNTRvcjNiYmNoYUo3SVF1aEVnbUl3QSJ9",
+		"signature": "NkcA6NcG-E8tB2buATUaaUsQdHiOTfJgGg3GZgxGdfs"
+	},
+	"orders": "https://acme.zerossl.com/v2/DV90/account/L60WgudoZWk_Ac2niQfjqA/orders",
+	"location": "https://acme.zerossl.com/v2/DV90/account/L60WgudoZWk_Ac2niQfjqA"
+}
